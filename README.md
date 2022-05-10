@@ -3,7 +3,7 @@ This project is a migration of the pandas functionality to read yahoo finance st
 https://github.com/pydata/pandas-datareader/blob/main/pandas_datareader/yahoo/daily.py
 
 
-![Zoom_demo](https://github.com/ivofernandes/yahoo_finance_data_reader/blob/master/doc/simulator_screenshot_1.gif?raw=true)
+![Yahoo Finance data](https://raw.githubusercontent.com/ivofernandes/yahoo_finance_data_reader/master/doc/simulator_screenshot_1.png?raw=true)
 
 ## Features
 
@@ -11,12 +11,13 @@ Get daily data from yahoo finance for the entire dataframe available
 
 ## Getting started
 
-TODO: List prerequisites and provide or point to information on how to
-start using the package.
+
+Add the dependency to your `pubspec.yaml`:
+```
+yahoo_finance_data_reader: ^0.0.1
+```
 
 ## Usage
-
-
 ```dart
 List<dynamic> prices = await YahooFinanceDailyReader().getDailyData('GOOG');
 ```
