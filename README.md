@@ -2,6 +2,7 @@ This project is a migration of the pandas functionality to read yahoo finance st
 
 https://github.com/pydata/pandas-datareader/blob/main/pandas_datareader/yahoo/daily.py
 
+This lib have a strong advantage on backtesting strategies as it can give all the dataframe in yahoo finance, this means that can get daily data on futures like NQ=F and ES=F since 2000 and it goes as far as getting data from 1927 on the SP500 yahoo finance symbol ^GSPC 
 
 ![Yahoo Finance data](https://raw.githubusercontent.com/ivofernandes/yahoo_finance_data_reader/master/doc/simulator_screenshot_1.png?raw=true)
 
@@ -14,7 +15,7 @@ Get daily data from yahoo finance for the entire dataframe available
 
 Add the dependency to your `pubspec.yaml`:
 ```
-yahoo_finance_data_reader: ^0.0.1
+yahoo_finance_data_reader: ^0.0.2
 ```
 
 ## Usage
