@@ -55,6 +55,13 @@ FutureBuilder(
 )
 ```
 
+## Use a proxy to use this project in flutter web
+To use this project in flutter web and don't get the CORS error, you can use a prefix in the constructor of the data reader
+
+```
+List<dynamic> prices = 
+    await YahooFinanceDailyReader(prefix: 'https://thingproxy.freeboard.io/fetch/https://').getDailyData('GOOG');
+```
 
 ## Like us on pub.dev
 Package url:

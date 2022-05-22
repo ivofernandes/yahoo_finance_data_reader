@@ -1,12 +1,14 @@
 import 'dart:async';
 import 'dart:convert';
 
-import 'package:http/http.dart' as http;
+import 'package:dio/dio.dart';
 
 class YahooFinanceDailyReader {
   final Duration timeout;
+  final String prefix;
 
-  const YahooFinanceDailyReader({this.timeout = const Duration(seconds: 30)});
+  const YahooFinanceDailyReader(
+      {this.timeout = const Duration(seconds: 30), this.prefix = 'https://'});
 
   /// Python like get allDailyData, inspired on pandas_datareader/yahoo/daily
   /// Steps:
@@ -18,20 +20,16 @@ class YahooFinanceDailyReader {
     ticker = ticker.toUpperCase();
     String now = DateTime.now().millisecondsSinceEpoch.toString();
 
-    Uri uri = Uri.https('finance.yahoo.com', 'quote/' + ticker + '/history', {
-      'period1': startTimestamp.toString(),
-      'period2': now,
-      'interval': '1d',
-      'indicators': 'quote',
-      'includeTimestamps': 'true'
-    });
-    http.Response response =
-        await http.get(uri).timeout(timeout, onTimeout: () {
-      throw TimeoutException('Timeout');
-    });
+    String url = '${prefix}finance.yahoo.com/quote/$ticker/history?'
+        'period1=$startTimestamp&period2=$now&interval=1d&indicators=quote&includeTimes';
+    Dio dio = Dio();
+    dio.options.connectTimeout = timeout.inMilliseconds;
+    dio.options.receiveTimeout = timeout.inMilliseconds;
+
+    Response response = await dio.get(url);
 
     if (response.statusCode == 200) {
-      String body = response.body;
+      String body = response.toString();
 
       // Find the json in the html
       String startDelimiter = 'root.App.main = ';
