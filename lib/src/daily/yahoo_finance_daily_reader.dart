@@ -2,13 +2,17 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
 
 class YahooFinanceDailyReader {
   final Duration timeout;
   final String prefix;
+  final Map<String, dynamic>? headers;
 
   const YahooFinanceDailyReader(
-      {this.timeout = const Duration(seconds: 30), this.prefix = 'https://'});
+      {this.timeout = const Duration(seconds: 30),
+      this.prefix = 'https://',
+      this.headers});
 
   /// Python like get allDailyData, inspired on pandas_datareader/yahoo/daily
   /// Steps:
@@ -18,44 +22,66 @@ class YahooFinanceDailyReader {
   Future<List<dynamic>> getDailyData(String ticker,
       {int startTimestamp = -1577908800}) async {
     ticker = ticker.toUpperCase();
-    String now = DateTime.now().millisecondsSinceEpoch.toString();
+    String now =
+        (DateTime.now().millisecondsSinceEpoch / 1000).round().toString();
 
     String url = '${prefix}finance.yahoo.com/quote/$ticker/history?'
         'period1=$startTimestamp&period2=$now&interval=1d&indicators=quote&includeTimes';
+
     Dio dio = Dio();
     dio.options.connectTimeout = timeout.inMilliseconds;
     dio.options.receiveTimeout = timeout.inMilliseconds;
+
+    Map<String, dynamic> currentHeaders = {
+      'content-type': 'application/json',
+      'charset': 'utf-8',
+      'Access-Control-Allow-Origin': '*'
+    };
+
+    if (headers != null) {
+      currentHeaders = headers!;
+    }
+
+    //dio.options.headers = currentHeaders;
 
     Response response = await dio.get(url);
 
     if (response.statusCode == 200) {
       String body = response.toString();
 
-      // Find the json in the html
-      String startDelimiter = 'root.App.main = ';
-      String endDelimiter = ';\n}(this));';
-
-      int startIndex = body.indexOf(startDelimiter) + startDelimiter.length;
-      int endIndex = body.indexOf(endDelimiter, startIndex);
-      String jsonString = body.substring(startIndex, endIndex);
-
-      // Parse all json
-      Map<String, dynamic> json = jsonDecode(jsonString);
-
-      // Get item ["context"]["dispatcher"]["stores"]["HistoricalPriceStore"]
-      Map<String, dynamic>? historicalPrice =
-          json["context"]["dispatcher"]["stores"]["HistoricalPriceStore"];
-
-      List<dynamic> result = [];
-
-      if (historicalPrice != null) {
-        result = historicalPrice["prices"];
-      }
-
-      return result;
+      return await computeResponse(body);
     }
 
     // If was not a 200 status code, return empty list
     return [];
+  }
+
+  Future<List<dynamic>> computeResponse(String value) {
+    return compute(processResponse, value);
+  }
+
+  List<dynamic> processResponse(String body) {
+    // Find the json in the html
+    String startDelimiter = 'root.App.main = ';
+    String endDelimiter = ';\n}(this));';
+
+    int startIndex = body.indexOf(startDelimiter) + startDelimiter.length;
+    int endIndex = body.indexOf(endDelimiter, startIndex);
+    String jsonString = body.substring(startIndex, endIndex);
+
+    // Parse all json
+    Map<String, dynamic> json = jsonDecode(jsonString);
+
+    // Get item ["context"]["dispatcher"]["stores"]["HistoricalPriceStore"]
+    Map<String, dynamic>? historicalPrice =
+        json["context"]["dispatcher"]["stores"]["HistoricalPriceStore"];
+
+    List<dynamic> result = [];
+
+    if (historicalPrice != null) {
+      result = historicalPrice["prices"];
+    }
+
+    return result;
   }
 }
