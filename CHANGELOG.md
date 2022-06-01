@@ -13,3 +13,7 @@ Added a prefix parameter that makes possible to use proxies like https://github.
 ## 0.0.4
 
 Added isolate for concurrency to parse the json without blocking the main thread
+
+## 0.0.5
+
+Fixes on the http header

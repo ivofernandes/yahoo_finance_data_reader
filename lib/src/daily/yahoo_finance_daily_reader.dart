@@ -4,9 +4,15 @@ import 'dart:convert';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 
+/// Class to read daily data from yahoo finance
 class YahooFinanceDailyReader {
+  /// Time that will way for an response from yahoo finance
   final Duration timeout;
+
+  /// Prefix that you want in the call, for avoiding CORS errors
   final String prefix;
+
+  /// Headers of the http request
   final Map<String, dynamic>? headers;
 
   const YahooFinanceDailyReader(
@@ -16,7 +22,7 @@ class YahooFinanceDailyReader {
 
   /// Python like get allDailyData, inspired on pandas_datareader/yahoo/daily
   /// Steps:
-  /// 1 - // Get https://finance.yahoo.com/quote/%5EGSPC/history?period1=-1577908800&period2=1617505199&interval=1d&indicators=quote&includeTimestamps=true
+  /// 1 - Get https://finance.yahoo.com/quote/%5EGSPC/history?period1=-1577908800&period2=1617505199&interval=1d&indicators=quote&includeTimestamps=true
   /// 2 - Find the delimiters of the begging and end of the json
   /// 3 - Get item ["context"]["dispatcher"]["stores"]["HistoricalPriceStore"]
   Future<List<dynamic>> getDailyData(String ticker,
@@ -42,25 +48,27 @@ class YahooFinanceDailyReader {
       currentHeaders = headers!;
     }
 
-    //dio.options.headers = currentHeaders;
+    dio.options.headers = currentHeaders;
 
     Response response = await dio.get(url);
 
     if (response.statusCode == 200) {
       String body = response.toString();
 
-      return await computeResponse(body);
+      return await _computeResponse(body);
     }
 
     // If was not a 200 status code, return empty list
     return [];
   }
 
-  Future<List<dynamic>> computeResponse(String value) {
-    return compute(processResponse, value);
+  /// create the isolate to process the response
+  Future<List<dynamic>> _computeResponse(String value) {
+    return compute(_processResponse, value);
   }
 
-  List<dynamic> processResponse(String body) {
+  /// Process to get the daily data from the html response
+  List<dynamic> _processResponse(String body) {
     // Find the json in the html
     String startDelimiter = 'root.App.main = ';
     String endDelimiter = ';\n}(this));';
