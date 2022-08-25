@@ -17,3 +17,7 @@ Added isolate for concurrency to parse the json without blocking the main thread
 ## 0.0.5
 
 Fixes on the http header
+
+# 0.0.6
+
+Improved documentation

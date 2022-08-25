@@ -6,6 +6,9 @@ This lib have a strong advantage on backtesting strategies as it can give all th
 
 ![Yahoo Finance data](https://raw.githubusercontent.com/ivofernandes/yahoo_finance_data_reader/master/doc/simulator_screenshot_1.png?raw=true)
 
+In this video I explained how you can use this package:
+https://youtu.be/3msrEgYwmYc
+
 ## Features
 
 Get daily data from yahoo finance for the entire dataframe available
@@ -15,7 +18,7 @@ Get daily data from yahoo finance for the entire dataframe available
 
 Add the dependency to your `pubspec.yaml`:
 ```
-yahoo_finance_data_reader: ^0.0.2
+yahoo_finance_data_reader: ^0.0.6
 ```
 
 ## Usage
