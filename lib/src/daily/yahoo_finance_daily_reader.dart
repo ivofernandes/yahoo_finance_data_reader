@@ -20,6 +20,17 @@ class YahooFinanceDailyReader {
       this.prefix = 'https://',
       this.headers});
 
+  /// This abstraction lets the developer pass a dateTime
+  Future<List<dynamic>> getDaily(String ticker, {DateTime? startDate}) async {
+    int? timestamp;
+    if (startDate != null) {
+      timestamp = (startDate.millisecondsSinceEpoch / 1000).round();
+      return getDailyData(ticker, startTimestamp: timestamp);
+    } else {
+      return getDailyData(ticker);
+    }
+  }
+
   /// Python like get allDailyData, inspired on pandas_datareader/yahoo/daily
   /// Steps:
   /// 1 - Get https://finance.yahoo.com/quote/%5EGSPC/history?period1=-1577908800&period2=1617505199&interval=1d&indicators=quote&includeTimestamps=true
@@ -28,6 +39,7 @@ class YahooFinanceDailyReader {
   Future<List<dynamic>> getDailyData(String ticker,
       {int startTimestamp = -1577908800}) async {
     ticker = ticker.toUpperCase();
+
     String now =
         (DateTime.now().millisecondsSinceEpoch / 1000).round().toString();
 

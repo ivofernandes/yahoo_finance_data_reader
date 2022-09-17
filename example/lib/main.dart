@@ -14,10 +14,23 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
   bool useProxy = false;
-  // This widget is the root of your application.
+  DateTime? date;
+
   @override
   Widget build(BuildContext context) {
     String ticker = 'GOOG';
+    YahooFinanceDailyReader yahooFinanceDataReader = YahooFinanceDailyReader(
+        prefix: useProxy
+            ? 'https://thingproxy.freeboard.io/fetch/https://'
+            : 'https://');
+
+    var future;
+    if (date == null) {
+      future = yahooFinanceDataReader.getDaily(ticker);
+    } else {
+      future = yahooFinanceDataReader.getDaily(ticker, startDate: date);
+    }
+
     return MaterialApp(
       title: 'Flutter Demo',
       home: Scaffold(
@@ -29,58 +42,66 @@ class _MyAppState extends State<MyApp> {
               CheckboxListTile(
                 value: useProxy,
                 onChanged: (value) => setState(() => useProxy = !useProxy),
-                title: Text('Use proxy'),
+                title: const Text('Use proxy'),
               ),
-              Builder(
-                builder: (BuildContext context) => SizedBox(
-                  height: MediaQuery.of(context).size.height - 150,
-                  child: FutureBuilder(
-                    future: YahooFinanceDailyReader(
-                            prefix: useProxy
-                                ? 'https://thingproxy.freeboard.io/fetch/https://'
-                                : 'https://')
-                        .getDailyData(ticker),
-                    builder: (BuildContext context,
-                        AsyncSnapshot<List<dynamic>> snapshot) {
-                      if (snapshot.connectionState == ConnectionState.done) {
-                        List<dynamic> historicalData = snapshot.data!;
-                        return ListView.builder(
-                            itemCount: historicalData.length + 1,
-                            itemBuilder: (BuildContext context, int index) {
-                              if (index == 0) {
-                                return Container(
-                                  margin: const EdgeInsets.all(10),
-                                  child: Text(ticker),
-                                );
-                              }
+              CheckboxListTile(
+                value: date != null,
+                onChanged: (value) => setState(() {
+                  if (date == null) {
+                    date = DateTime.now();
+                  } else {
+                    date = null;
+                  }
+                }),
+                title: const Text('Just now data'),
+              ),
+              Expanded(
+                child: Builder(
+                  builder: (BuildContext context) => SizedBox(
+                    child: FutureBuilder(
+                      future: future,
+                      builder: (BuildContext context,
+                          AsyncSnapshot<List<dynamic>> snapshot) {
+                        if (snapshot.connectionState == ConnectionState.done) {
+                          List<dynamic> historicalData = snapshot.data!;
+                          return ListView.builder(
+                              itemCount: historicalData.length + 1,
+                              itemBuilder: (BuildContext context, int index) {
+                                if (index == 0) {
+                                  return Container(
+                                    margin: const EdgeInsets.all(10),
+                                    child: Text(ticker),
+                                  );
+                                }
 
-                              Map<String, dynamic> day =
-                                  historicalData[index - 1];
-                              DateTime date =
-                                  DateTime.fromMillisecondsSinceEpoch(
-                                      day['date'] * 1000);
-                              return Container(
-                                  margin: const EdgeInsets.all(10),
-                                  child: Text('''$date
+                                Map<String, dynamic> day =
+                                    historicalData[index - 1];
+                                DateTime date =
+                                    DateTime.fromMillisecondsSinceEpoch(
+                                        day['date'] * 1000);
+                                return Container(
+                                    margin: const EdgeInsets.all(10),
+                                    child: Text('''$date
 open: ${day['open']}
 close: ${day['close']}
 high: ${day['high']}
 low: ${day['low']}
 adjclose: ${day['adjclose']}
-                                      '''));
-                            });
-                      } else if (snapshot.hasError) {
-                        return Text('Error ${snapshot.error}');
-                      }
+                                        '''));
+                              });
+                        } else if (snapshot.hasError) {
+                          return Text('Error ${snapshot.error}');
+                        }
 
-                      return const Center(
-                        child: SizedBox(
-                          height: 50,
-                          width: 50,
-                          child: CircularProgressIndicator(),
-                        ),
-                      );
-                    },
+                        return const Center(
+                          child: SizedBox(
+                            height: 50,
+                            width: 50,
+                            child: CircularProgressIndicator(),
+                          ),
+                        );
+                      },
+                    ),
                   ),
                 ),
               ),
