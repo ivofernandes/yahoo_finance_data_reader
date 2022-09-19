@@ -24,18 +24,22 @@ class _MyAppState extends State<MyApp> {
             ? 'https://thingproxy.freeboard.io/fetch/https://'
             : 'https://');
 
-    var future;
+    Future<List> future;
     if (date == null) {
       future = yahooFinanceDataReader.getDaily(ticker);
     } else {
       future = yahooFinanceDataReader.getDaily(ticker, startDate: date);
     }
 
+    // TODO add DTO to example
+    //Future<List<YahooFinanceData>> data =
+    //    yahooFinanceDataReader.getDailyDTOs(ticker);
+
     return MaterialApp(
       title: 'Flutter Demo',
       home: Scaffold(
           appBar: AppBar(
-            title: Text('Example'),
+            title: const Text('Example'),
           ),
           body: Column(
             children: [
@@ -81,13 +85,8 @@ class _MyAppState extends State<MyApp> {
                                         day['date'] * 1000);
                                 return Container(
                                     margin: const EdgeInsets.all(10),
-                                    child: Text('''$date
-open: ${day['open']}
-close: ${day['close']}
-high: ${day['high']}
-low: ${day['low']}
-adjclose: ${day['adjclose']}
-                                        '''));
+                                    child:
+                                        Text(generateDescription(date, day)));
                               });
                         } else if (snapshot.hasError) {
                           return Text('Error ${snapshot.error}');
@@ -108,5 +107,15 @@ adjclose: ${day['adjclose']}
             ],
           )),
     );
+  }
+
+  String generateDescription(DateTime date, Map<String, dynamic> day) {
+    return '''$date
+open: ${day['open']}
+close: ${day['close']}
+high: ${day['high']}
+low: ${day['low']}
+adjclose: ${day['adjclose']}
+''';
   }
 }

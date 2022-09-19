@@ -3,6 +3,7 @@ import 'dart:convert';
 
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
+import 'package:yahoo_finance_data_reader/src/daily/yahoo_finance_data.dart';
 
 /// Class to read daily data from yahoo finance
 class YahooFinanceDailyReader {
@@ -20,11 +21,25 @@ class YahooFinanceDailyReader {
       this.prefix = 'https://',
       this.headers});
 
+  /// getDailyData but transform the data into a YahooFinanceData list
+  Future<List<YahooFinanceData>> getDailyDTOs(String ticker,
+      {DateTime? startDate}) async {
+    List<dynamic> dailyData = await getDaily(ticker, startDate: startDate);
+
+    final List<YahooFinanceData> yahooFinanceDataList = [];
+
+    for (Map snapshot in dailyData) {
+      YahooFinanceData yahooFinanceData = YahooFinanceData.fromJson(snapshot);
+      yahooFinanceDataList.add(yahooFinanceData);
+    }
+
+    return yahooFinanceDataList;
+  }
+
   /// This abstraction lets the developer pass a dateTime
   Future<List<dynamic>> getDaily(String ticker, {DateTime? startDate}) async {
-    int? timestamp;
     if (startDate != null) {
-      timestamp = (startDate.millisecondsSinceEpoch / 1000).round();
+      int timestamp = (startDate.millisecondsSinceEpoch / 1000).round();
       return getDailyData(ticker, startTimestamp: timestamp);
     } else {
       return getDailyData(ticker);

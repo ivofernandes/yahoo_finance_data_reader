@@ -1,5 +1,6 @@
+import 'dart:convert';
+
 class YahooFinanceData {
-  final dynamic json;
   final DateTime date;
   final double? open;
   final double? high;
@@ -8,8 +9,7 @@ class YahooFinanceData {
   final int? volume;
   final double? adjClose;
 
-  YahooFinanceData(
-    this.json, {
+  YahooFinanceData({
     required this.date,
     required this.open,
     required this.high,
@@ -21,7 +21,6 @@ class YahooFinanceData {
 
   static YahooFinanceData fromJson(json) {
     return YahooFinanceData(
-      json,
       date: DateTime.fromMillisecondsSinceEpoch(json['date'] * 1000),
       open: json['open'] == null ? null : double.parse(json['open'].toString()),
       high: json['high'] == null ? null : double.parse(json['high'].toString()),
@@ -36,6 +35,18 @@ class YahooFinanceData {
     );
   }
 
+  Map toJson() {
+    return {
+      'date': date.millisecondsSinceEpoch ~/ 1000,
+      'open': open,
+      'close': close,
+      'adjclose': adjClose,
+      'high': high,
+      'low': low,
+      'volume': volume,
+    };
+  }
+
   @override
-  String toString() => json;
+  String toString() => json.encode(toJson());
 }
