@@ -1,6 +1,6 @@
 name: yahoo_finance_data_reader
 description: Data reader for yahoo finance to get daily stocks prices. It can be used to develop backtests and it can get all the historic daily data on yahoo finance
-version: 0.0.7
+version: 0.0.8
 homepage: https://incaview.com
 repository: https://github.com/ivofernandes/yahoo_finance_data_reader
 

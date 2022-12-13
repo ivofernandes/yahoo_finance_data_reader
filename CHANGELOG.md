@@ -18,3 +18,6 @@ Improved documentation
 
 #0.0.7
 DTO and DateTime in the package interface
+
+#0.0.7
+refactor of the DTO interface to get more data

@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:yahoo_finance_data_reader/src/daily/yahoo_finance_data.dart';
+import 'package:yahoo_finance_data_reader/src/daily/model/yahoo_finance_data.dart';
 import 'package:yahoo_finance_data_reader/yahoo_finance_data_reader.dart';
 
 void main() {
@@ -20,7 +20,8 @@ void main() {
 
     DateTime startTime = DateTime.now();
 
-    List<YahooFinanceData> data = await yahooFinance.getDailyDTOs('^GSPC');
+    List<YahooFinanceCandleData> data =
+        await yahooFinance.getDailyDTOs('^GSPC');
 
     DateTime endTime = DateTime.now();
 
@@ -87,7 +88,7 @@ void main() {
     DateTime dateTime = DateTime.now();
     dateTime = dateTime.subtract(const Duration(days: 30));
 
-    List<YahooFinanceData> data =
+    List<YahooFinanceCandleData> data =
         await yahooFinance.getDailyDTOs('GOOG', startDate: dateTime);
 
     assert(data.isNotEmpty);
@@ -104,7 +105,7 @@ void main() {
 
     DateTime startTime = DateTime.now();
 
-    List<YahooFinanceData> data = await yahooFinance.getDailyDTOs('GOOG');
+    List<YahooFinanceCandleData> data = await yahooFinance.getDailyDTOs('GOOG');
 
     DateTime endTime = DateTime.now();
 
