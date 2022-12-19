@@ -42,8 +42,8 @@ class _BottomSelectionWidgetState extends State<BottomSelectionWidget> {
           controller: _pageController,
           onPageChanged: _onItemSelected,
           children: [
-            RawSearch(),
             DTOSearch(),
+            RawSearch(),
           ],
         ),
       ),
@@ -52,12 +52,12 @@ class _BottomSelectionWidgetState extends State<BottomSelectionWidget> {
         currentIndex: _selectedIndex,
         items: const [
           BottomNavigationBarItem(
-            icon: Icon(Icons.raw_on),
-            label: 'Raw',
-          ),
-          BottomNavigationBarItem(
             icon: Icon(Icons.format_list_numbered),
             label: 'DTO',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.raw_on),
+            label: 'Raw',
           ),
         ],
       ),
@@ -82,90 +82,39 @@ class RawSearch extends StatefulWidget {
 }
 
 class _RawSearchState extends State<RawSearch> {
-  bool useProxy = false;
-  DateTime? date;
-
   @override
   Widget build(BuildContext context) {
     String ticker = 'GOOG';
-    YahooFinanceDailyReader yahooFinanceDataReader = YahooFinanceDailyReader(
-        prefix: useProxy
-            ? 'https://thingproxy.freeboard.io/fetch/https://'
-            : 'https://');
+    YahooFinanceDailyReader yahooFinanceDataReader = YahooFinanceDailyReader();
 
-    Future<List> future;
-    if (date == null) {
-      future = yahooFinanceDataReader.getDaily(ticker);
-    } else {
-      future = yahooFinanceDataReader.getDaily(ticker, startDate: date);
-    }
+    Future<Map<String, dynamic>> future =
+        yahooFinanceDataReader.getDailyData(ticker);
 
-    return Column(
-      children: [
-        CheckboxListTile(
-          value: useProxy,
-          onChanged: (value) => setState(() => useProxy = !useProxy),
-          title: const Text('Use proxy'),
-        ),
-        CheckboxListTile(
-          value: date != null,
-          onChanged: (value) => setState(
-            () {
-              if (date == null) {
-                date = DateTime.now();
-              } else {
-                date = null;
-              }
-            },
-          ),
-          title: const Text('Just now data'),
-        ),
-        Expanded(
+    return FutureBuilder(
+      future: future,
+      builder:
+          (BuildContext context, AsyncSnapshot<Map<String, dynamic>> snapshot) {
+        if (snapshot.connectionState == ConnectionState.done) {
+          if (snapshot.data == null) {
+            return Text('No data');
+          }
+
+          Map<String, dynamic> historicalData = snapshot.data!;
+          return SingleChildScrollView(
+            child: Text(historicalData.toString()),
+          );
+        } else if (snapshot.hasError) {
+          return Text('Error ${snapshot.error}');
+        }
+
+        return const Center(
           child: SizedBox(
-            child: FutureBuilder(
-              future: future,
-              builder: (BuildContext context,
-                  AsyncSnapshot<List<dynamic>> snapshot) {
-                if (snapshot.connectionState == ConnectionState.done) {
-                  if (snapshot.data == null) {
-                    return Text('No data');
-                  }
-
-                  List<dynamic> historicalData = snapshot.data!;
-                  return ListView.builder(
-                    itemCount: historicalData.length + 1,
-                    itemBuilder: (BuildContext context, int index) {
-                      if (index == 0) {
-                        return Container(
-                          margin: const EdgeInsets.all(10),
-                          child: Text(ticker),
-                        );
-                      }
-
-                      Map<String, dynamic> day = historicalData[index - 1];
-                      DateTime date = DateTime.fromMillisecondsSinceEpoch(
-                          day['date'] * 1000);
-                      return Container(
-                          margin: const EdgeInsets.all(10),
-                          child: Text(generateDescription(date, day)));
-                    },
-                  );
-                } else if (snapshot.hasError) {
-                  return Text('Error ${snapshot.error}');
-                }
-
-                return const Center(
-                  child: SizedBox(
-                    height: 50,
-                    width: 50,
-                    child: CircularProgressIndicator(),
-                  ),
-                );
-              },
-            ),
+            height: 50,
+            width: 50,
+            child: CircularProgressIndicator(),
           ),
-        ),
-      ],
+        );
+      },
     );
   }
 

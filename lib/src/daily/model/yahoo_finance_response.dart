@@ -5,5 +5,39 @@ class YahooFinanceResponse {
     required this.candlesData,
   });
 
+  factory YahooFinanceResponse.fromJson(Map<String, dynamic> json) {
+    List<YahooFinanceCandleData> data = [];
+
+    List timestamps = json['timestamp'];
+
+    Map<String, dynamic> indicators = json['indicators']['quote'].first;
+
+    List opens = indicators['open'];
+    List closes = indicators['close'];
+    List lows = indicators['low'];
+    List highs = indicators['high'];
+    List volumes = indicators['volume'];
+
+    for (int i = 0; i < timestamps.length; i++) {
+      int timestamp = timestamps[i] as int;
+      DateTime date = DateTime.fromMillisecondsSinceEpoch(timestamp * 1000);
+
+      YahooFinanceCandleData candle = YahooFinanceCandleData(
+        date: date,
+        close: closes[i],
+        open: opens[i],
+        low: lows[i],
+        high: highs[i],
+        volume: volumes[i],
+      );
+      data.add(candle);
+    }
+
+    return YahooFinanceResponse(
+      candlesData: data,
+    );
+  }
+
+  /// List with all the candles
   List<YahooFinanceCandleData> candlesData = [];
 }

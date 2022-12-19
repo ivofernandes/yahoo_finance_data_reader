@@ -5,7 +5,6 @@ class YahooFinanceCandleData {
   final double? low;
   final double? close;
   final int? volume;
-  final double? adjClose;
 
   YahooFinanceCandleData({
     required this.date,
@@ -14,7 +13,6 @@ class YahooFinanceCandleData {
     required this.low,
     required this.close,
     required this.volume,
-    required this.adjClose,
   });
 
   static YahooFinanceCandleData fromJson(json) {
@@ -27,9 +25,6 @@ class YahooFinanceCandleData {
           json['close'] == null ? null : double.parse(json['close'].toString()),
       volume:
           json['volume'] == null ? null : int.parse(json['volume'].toString()),
-      adjClose: json['adjclose'] == null
-          ? null
-          : double.parse(json['adjclose'].toString()),
     );
   }
 
@@ -38,7 +33,6 @@ class YahooFinanceCandleData {
       'date': date.millisecondsSinceEpoch ~/ 1000,
       'open': open,
       'close': close,
-      'adjclose': adjClose,
       'high': high,
       'low': low,
       'volume': volume,
@@ -47,5 +41,5 @@ class YahooFinanceCandleData {
 
   @override
   String toString() => 'YahooFinanceCandleData{date: $date, open: $open, '
-      'close: $close, adjClose: $adjClose, high: $high, low: $low, volume: $volume}';
+      'close: $close, high: $high, low: $low, volume: $volume}';
 }
