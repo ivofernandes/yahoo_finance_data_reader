@@ -21,3 +21,6 @@ DTO and DateTime in the package interface
 
 #0.0.7
 refactor of the DTO interface to get more data
+
+#1.0.0
+Update to use the yahoo finance API

@@ -34,9 +34,8 @@ class YahooFinanceDailyReader {
     String now =
         (DateTime.now().millisecondsSinceEpoch / 1000).round().toString();
 
-    //TODO update period2
     String params =
-        'period1=-2208994789&period2=1671412806&interval=1d&includePrePost=False&events=div,splits';
+        'period1=-2208994789&period2=$now&interval=1d&includePrePost=False&events=div,splits';
     String url =
         'https://query2.finance.yahoo.com/v8/finance/chart/$ticker?$params';
 

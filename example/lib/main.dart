@@ -27,7 +27,7 @@ class BottomSelectionWidget extends StatefulWidget {
 
 class _BottomSelectionWidgetState extends State<BottomSelectionWidget> {
   int _selectedIndex = 0;
-  PageController _pageController = PageController();
+  final PageController _pageController = PageController();
 
   @override
   Widget build(BuildContext context) {
@@ -96,7 +96,7 @@ class _RawSearchState extends State<RawSearch> {
           (BuildContext context, AsyncSnapshot<Map<String, dynamic>> snapshot) {
         if (snapshot.connectionState == ConnectionState.done) {
           if (snapshot.data == null) {
-            return Text('No data');
+            return const Text('No data');
           }
 
           Map<String, dynamic> historicalData = snapshot.data!;
@@ -152,7 +152,7 @@ class _DTOSearchState extends State<DTOSearch> {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        Text('Ticker from yahoo finance'),
+        const Text('Ticker from yahoo finance'),
         TextField(
           controller: controller,
         ),
@@ -175,7 +175,10 @@ class _DTOSearchState extends State<DTOSearch> {
                 return ListView.builder(
                     itemCount: response.candlesData.length,
                     itemBuilder: (BuildContext context, int index) {
-                      return Text(response.candlesData[index].toString());
+                      YahooFinanceCandleData candle =
+                          response.candlesData[index];
+
+                      return _CandleCard(candle);
                     });
               } else {
                 return const Center(
@@ -196,5 +199,49 @@ class _DTOSearchState extends State<DTOSearch> {
   void load() {
     future = YahooFinanceDailyReader().getDailyDTOs(controller.text);
     setState(() {});
+  }
+}
+
+class _CandleCard extends StatelessWidget {
+  final YahooFinanceCandleData candle;
+  const _CandleCard(this.candle);
+
+  @override
+  Widget build(BuildContext context) {
+    final String date = candle.date.toIso8601String().split('T').first;
+
+    return Card(
+      child: Container(
+        margin: const EdgeInsets.all(10),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                Text(date),
+              ],
+            ),
+            const SizedBox(
+              height: 10,
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                Text('open: ${candle.open.toStringAsFixed(2)}'),
+                Text('close: ${candle.close.toStringAsFixed(2)}'),
+              ],
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                Text('low: ${candle.low.toStringAsFixed(2)}'),
+                Text('high: ${candle.high.toStringAsFixed(2)}'),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }
