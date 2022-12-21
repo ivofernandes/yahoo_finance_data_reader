@@ -24,3 +24,6 @@ refactor of the DTO interface to get more data
 
 #1.0.0
 Update to use the yahoo finance API
+
+#1.0.1
+Added timestamp filter to avoid getting all data if not necessary

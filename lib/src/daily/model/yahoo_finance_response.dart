@@ -2,8 +2,11 @@ import 'package:yahoo_finance_data_reader/src/daily/model/yahoo_finance_data.dar
 
 class YahooFinanceResponse {
   YahooFinanceResponse({
-    required this.candlesData,
+    this.candlesData = const [],
   });
+
+  /// List with all the candles
+  List<YahooFinanceCandleData> candlesData = [];
 
   factory YahooFinanceResponse.fromJson(Map<String, dynamic> json) {
     List<YahooFinanceCandleData> data = [];
@@ -37,7 +40,4 @@ class YahooFinanceResponse {
       candlesData: data,
     );
   }
-
-  /// List with all the candles
-  List<YahooFinanceCandleData> candlesData = [];
 }

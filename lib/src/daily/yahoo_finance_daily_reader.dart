@@ -21,21 +21,33 @@ class YahooFinanceDailyReader {
   /// getDailyData but transform the data into a YahooFinanceData list
   Future<YahooFinanceResponse> getDailyDTOs(String ticker,
       {DateTime? startDate}) async {
-    Map<String, dynamic> dailyData = await getDailyData(ticker);
+    int? startTimestamp;
+    if (startDate != null) {
+      startTimestamp = (startDate.millisecondsSinceEpoch / 1000).floor();
+    }
+
+    Map<String, dynamic> dailyData = await getDailyData(
+      ticker,
+      startTimestamp: startTimestamp,
+    );
 
     return YahooFinanceResponse.fromJson(dailyData);
   }
 
   /// Python like get allDailyData, inspired on python package yfinance
   /// Get https://query2.finance.yahoo.com/v8/finance/chart/GOOG
-  Future<Map<String, dynamic>> getDailyData(String ticker) async {
+  Future<Map<String, dynamic>> getDailyData(
+    String ticker, {
+    int? startTimestamp = -2208994789,
+  }) async {
+    startTimestamp = startTimestamp ?? -2208994789;
     ticker = ticker.toUpperCase();
 
     String now =
         (DateTime.now().millisecondsSinceEpoch / 1000).round().toString();
 
     String params =
-        'period1=-2208994789&period2=$now&interval=1d&includePrePost=False&events=div,splits';
+        'period1=$startTimestamp&period2=$now&interval=1d&includePrePost=False&events=div,splits';
     String url =
         'https://query2.finance.yahoo.com/v8/finance/chart/$ticker?$params';
 

@@ -53,6 +53,23 @@ void main() {
     logPerformance(startTime, endTime, 'getDailyData on ^GSPC');
     assert(data.isNotEmpty);
   });
+
+  test('Test get yahoo finance DTO on GOOG', () async {
+    const yahooFinance = YahooFinanceDailyReader();
+
+    DateTime startTime = DateTime.now();
+
+    YahooFinanceResponse data = await yahooFinance.getDailyDTOs(
+      'GOOG',
+      startDate: DateTime.now().subtract(const Duration(days: 30)),
+    );
+
+    DateTime endTime = DateTime.now();
+
+    assert(data.candlesData.isNotEmpty);
+
+    logPerformance(startTime, endTime, 'getDailyDTOs on GOOG last month');
+  });
 }
 
 void logPerformance(DateTime startTime, DateTime endTime, String message) {

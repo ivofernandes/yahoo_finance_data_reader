@@ -28,6 +28,13 @@ YahooFinanceResponse data = await yahooFinance.getDailyDTOs('GOOG');
 To include in your app as a widget you can start with this future builder and debug your way until your desired result
 
 ```dart
+class DTOSearch extends StatefulWidget {
+  const DTOSearch({super.key});
+
+  @override
+  State<DTOSearch> createState() => _DTOSearchState();
+}
+
 class _DTOSearchState extends State<DTOSearch> {
   final TextEditingController controller = TextEditingController(
     text: 'GOOG',
