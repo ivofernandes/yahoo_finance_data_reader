@@ -62,6 +62,7 @@ class JoinPrices {
     return proportion;
   }
 
+  /// Join the old dataframe with the new one adjusting the proportion
   static List<YahooFinanceCandleData> _finishJoin(
       List<YahooFinanceCandleData> oldPricesList,
       List<YahooFinanceCandleData> recentPricesList,
@@ -69,14 +70,14 @@ class JoinPrices {
     // Will check if is has the same day than the old date limit,
     // because it can be incomplete as the close data is not from close
     // but rather the last price in the time of the request
-    DateTime oldLimitDate = oldPricesList.first.date;
+    DateTime oldLimitDate = oldPricesList.last.date;
     String oldLimitDateString = oldLimitDate.toIso8601String().split('T')[0];
     bool overridedLast = false;
 
     // join the next prices into the prices array
-    for (int i = recentPricesList.length - 1; i >= 0; i--) {
+    for (int i = 0; i < recentPricesList.length; i++) {
       if (recentPricesList[i].date.millisecondsSinceEpoch <
-          oldPricesList.first.date.millisecondsSinceEpoch) {
+          oldPricesList.last.date.millisecondsSinceEpoch) {
         continue;
       }
 
@@ -85,13 +86,13 @@ class JoinPrices {
         String currentDateString = currentDate.toIso8601String().split('T')[0];
 
         if (currentDateString == oldLimitDateString) {
-          oldPricesList[0] = recentPricesList[i];
+          oldPricesList.last = recentPricesList[i];
           overridedLast = true;
           continue;
         }
       }
 
-      oldPricesList.insert(0, recentPricesList[i]);
+      oldPricesList.add(recentPricesList[i]);
     }
 
     return oldPricesList;

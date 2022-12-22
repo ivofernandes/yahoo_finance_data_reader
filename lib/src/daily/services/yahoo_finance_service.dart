@@ -65,9 +65,11 @@ class YahooFinanceService {
       // and for joining dates, we need real instead of the real close prices
       DateTime lastDate = prices[2].date;
 
-      // TODO Get remaing data from yahoo finance
-      YahooFinanceResponse response = await const YahooFinanceDailyReader()
-          .getDailyDTOs(symbol, startDate: lastDate);
+      YahooFinanceResponse response =
+          await const YahooFinanceDailyReader().getDailyDTOs(
+        symbol,
+        startDate: lastDate,
+      );
       List<YahooFinanceCandleData> nextPrices = response.candlesData;
 
       if (nextPrices != []) {

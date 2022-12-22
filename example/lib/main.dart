@@ -296,7 +296,8 @@ class _YahooFinanceServiceWidgetState extends State<YahooFinanceServiceWidget> {
     setState(() {});
   }
 
-  void refresh() {
+  void refresh() async {
+    cachedPrices = await YahooFinanceDAO().getAllDailyData(controller.text);
     setState(() {});
   }
 
