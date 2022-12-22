@@ -42,6 +42,7 @@ class _BottomSelectionWidgetState extends State<BottomSelectionWidget> {
           controller: _pageController,
           onPageChanged: _onItemSelected,
           children: [
+            YahooFinanceServiceWidget(),
             DTOSearch(),
             RawSearch(),
           ],
@@ -51,6 +52,10 @@ class _BottomSelectionWidgetState extends State<BottomSelectionWidget> {
         onTap: _onItemSelected,
         currentIndex: _selectedIndex,
         items: const [
+          BottomNavigationBarItem(
+            icon: Icon(Icons.storage),
+            label: 'Service',
+          ),
           BottomNavigationBarItem(
             icon: Icon(Icons.format_list_numbered),
             label: 'DTO',
@@ -242,6 +247,113 @@ class _CandleCard extends StatelessWidget {
           ],
         ),
       ),
+    );
+  }
+}
+
+class YahooFinanceServiceWidget extends StatefulWidget {
+  const YahooFinanceServiceWidget({super.key});
+
+  @override
+  State<YahooFinanceServiceWidget> createState() =>
+      _YahooFinanceServiceWidgetState();
+}
+
+class _YahooFinanceServiceWidgetState extends State<YahooFinanceServiceWidget> {
+  TextEditingController controller = TextEditingController(
+    text: 'GOOG',
+  );
+  List<YahooFinanceCandleData> pricesList = [];
+  List? cachedPrices;
+  bool loading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    load();
+  }
+
+  void load() async {
+    loading = false;
+    setState(() {});
+
+    // Get response for the first time
+    pricesList = await YahooFinanceService().getTickerData(controller.text);
+
+    // Check if the cache was created
+    cachedPrices = await YahooFinanceDAO().getAllDailyData(controller.text);
+    loading = false;
+    setState(() {});
+  }
+
+  void deleteCache() async {
+    loading = true;
+    setState(() {});
+
+    await YahooFinanceDAO().removeDailyData(controller.text);
+    cachedPrices = await YahooFinanceDAO().getAllDailyData(controller.text);
+    loading = false;
+    setState(() {});
+  }
+
+  void refresh() {
+    setState(() {});
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (loading) {
+      return const Center(
+        child: CircularProgressIndicator(),
+      );
+    }
+
+    return ListView.builder(
+      itemCount: pricesList.length + 1,
+      itemBuilder: (context, i) {
+        if (i == 0) {
+          return Card(
+            child: Container(
+              margin: const EdgeInsets.all(10),
+              child: Column(
+                children: [
+                  TextField(
+                    controller: controller,
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      MaterialButton(
+                        color: Theme.of(context).primaryColor,
+                        onPressed: () => load(),
+                        child: const Text('Load'),
+                      ),
+                      MaterialButton(
+                        color: Theme.of(context).colorScheme.error,
+                        onPressed: () => deleteCache(),
+                        child: const Text('Delete Cache'),
+                      ),
+                      MaterialButton(
+                        color: Theme.of(context).colorScheme.onPrimary,
+                        onPressed: () => refresh(),
+                        child: const Text('Refresh'),
+                      ),
+                    ],
+                  ),
+                  Text('Prices in the service ${pricesList.length}'),
+                  Text('Prices in the cache ${cachedPrices?.length}'),
+                  pricesList.isEmpty
+                      ? const Text('No data')
+                      : const SizedBox.shrink()
+                ],
+              ),
+            ),
+          );
+        } else {
+          final YahooFinanceCandleData candleData = pricesList[i - 1];
+          return _CandleCard(candleData);
+        }
+      },
     );
   }
 }

@@ -1,4 +1,4 @@
-import 'package:yahoo_finance_data_reader/src/daily/model/yahoo_finance_data.dart';
+import 'package:yahoo_finance_data_reader/src/daily/model/yahoo_finance_candle_data.dart';
 
 class YahooFinanceResponse {
   YahooFinanceResponse({
@@ -21,23 +21,35 @@ class YahooFinanceResponse {
     List highs = indicators['high'];
     List volumes = indicators['volume'];
 
+    List adjCloses = json['indicators']['adjclose'].first['adjclose'];
+
     for (int i = 0; i < timestamps.length; i++) {
       int timestamp = timestamps[i] as int;
       DateTime date = DateTime.fromMillisecondsSinceEpoch(timestamp * 1000);
 
       YahooFinanceCandleData candle = YahooFinanceCandleData(
-        date: date,
-        close: closes[i],
-        open: opens[i],
-        low: lows[i],
-        high: highs[i],
-        volume: volumes[i],
-      );
+          date: date,
+          close: closes[i],
+          open: opens[i],
+          low: lows[i],
+          high: highs[i],
+          volume: volumes[i],
+          adjClose: adjCloses[i]);
       data.add(candle);
     }
 
     return YahooFinanceResponse(
       candlesData: data,
     );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'candlesData': toCandlesJson(),
+    };
+  }
+
+  List toCandlesJson() {
+    return candlesData.map((e) => e.toJson()).toList();
   }
 }
