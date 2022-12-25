@@ -1,3 +1,4 @@
+/// Representation of a single candle
 class YahooFinanceCandleData {
   final DateTime date;
   final double open;
@@ -19,7 +20,7 @@ class YahooFinanceCandleData {
     this.volume = 0,
   });
 
-  static YahooFinanceCandleData fromJson(json) {
+  factory YahooFinanceCandleData.fromJson(json) {
     return YahooFinanceCandleData(
       date: DateTime.fromMillisecondsSinceEpoch(json['date'] * 1000),
       open: double.parse(json['open'].toString()),
@@ -29,6 +30,17 @@ class YahooFinanceCandleData {
       adjClose: double.parse(json['adjClose'].toString()),
       volume: int.parse(json['volume'].toString()),
     );
+  }
+
+  /// Create a list of YahooFinanceCandleData based in a json array
+  static List<YahooFinanceCandleData> fromJsonList(List jsonList) {
+    List<YahooFinanceCandleData> result = [];
+
+    for (final jsonObject in jsonList) {
+      result.add(YahooFinanceCandleData.fromJson(jsonObject));
+    }
+
+    return result;
   }
 
   Map toJson() {
@@ -44,7 +56,8 @@ class YahooFinanceCandleData {
   }
 
   @override
-  String toString() => 'YahooFinanceCandleData{date: $date, open: $open, '
+  String toString() =>
+      'YahooFinanceCandleData{date: $date, adjClose: $adjClose, open: $open, '
       'close: $close, high: $high, low: $low, volume: $volume}';
 
   YahooFinanceCandleData copyWith({

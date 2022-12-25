@@ -11,7 +11,6 @@ class JoinPrices {
     double proportion = _calculateProportion(oldPricesList, recentPricesList);
 
     if (proportion != 1) {
-      print('Found porportion != 1: ${recentPricesList.last.date}');
       for (int i = 0; i < oldPricesList.length; i++) {
         oldPricesList[i] = oldPricesList[i].copyWith(
           adjClose: oldPricesList[i].adjClose * proportion,
@@ -36,8 +35,6 @@ class JoinPrices {
     while (!foundMatch && indexInRecent != 0) {
       indexInRecent--;
       indexInOld = 0;
-
-      DateTime oldestDateInTheRecentList = recentPricesList[indexInRecent].date;
 
       while (indexInOld < oldPricesList.length - 1 &&
           recentPricesList[indexInRecent].date !=

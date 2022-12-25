@@ -30,3 +30,6 @@ Added timestamp filter to avoid getting all data if not necessary
 
 ## 1.0.2
 Added functionality to persist data into a sembast cache
+
+## 1.0.3
+Improved package with more tests
