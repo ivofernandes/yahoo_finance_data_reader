@@ -33,3 +33,6 @@ Added functionality to persist data into a sembast cache
 
 ## 1.0.3
 Improved package with more tests
+
+## 1.0.4
+Added validation to support datasources with errors

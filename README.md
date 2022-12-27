@@ -1,5 +1,6 @@
 This project started as a migration of the pandas datareader functionality to read yahoo finance stock prices. 
-In December of 2022 yahoo started to encrypt the data in the HTML, so I needed to investigate
+In December of 2022 yahoo started to encrypt the data in the HTML, so I needed to investigate a way of evolving the package.
+And then found a yfinance package that used query2 of yahoo finance API, and started to use it
 
 https://github.com/pydata/pandas-datareader/blob/main/pandas_datareader/yahoo/daily.py
 
@@ -16,12 +17,12 @@ Get daily data from yahoo finance for the entire dataframe available
 
 Add the dependency to your `pubspec.yaml`:
 ```
-yahoo_finance_data_reader: ^1.0.0
+yahoo_finance_data_reader: ^1.0.4
 ```
 
 ## Usage
 ```dart
-YahooFinanceResponse data = await yahooFinance.getDailyDTOs('GOOG');
+YahooFinanceResponse response = await YahooFinanceDailyReader().getDailyDTOs('GOOG');
 ```
 
 ## Additional information

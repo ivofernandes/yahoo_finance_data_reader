@@ -27,6 +27,17 @@ class YahooFinanceResponse {
       int timestamp = timestamps[i] as int;
       DateTime date = DateTime.fromMillisecondsSinceEpoch(timestamp * 1000);
 
+      // Ignore null values
+      if (closes[i] == null ||
+          opens[i] == null ||
+          lows[i] == null ||
+          highs[i] == null ||
+          volumes[i] == null ||
+          adjCloses[i] == null) {
+        continue;
+      }
+
+      // Add candle to the list
       YahooFinanceCandleData candle = YahooFinanceCandleData(
           date: date,
           close: closes[i],
