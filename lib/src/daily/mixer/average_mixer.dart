@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:yahoo_finance_data_reader/yahoo_finance_data_reader.dart';
 
 class AverageMixer {
+  /// Mix a list of prices dataframes in the average
   static List<YahooFinanceCandleData> mix(
       List<List<YahooFinanceCandleData>> pricesList) {
     int numberOfAssets = pricesList.length;
@@ -16,23 +17,28 @@ class AverageMixer {
       return pricesList.first;
     }
 
+    // Reduce all lists to the same size
     preparePricesList(pricesList);
 
+    // Merge the prices
     return mergeAveragePrices(numberOfAssets, pricesList);
   }
 
+  /// Align the size of the dataframes of prices
   static void preparePricesList(List<List<YahooFinanceCandleData>> pricesList) {
-    // Get the date for start the average processing
-    DateTime startDate = pricesList.first.first.date;
+    // Get the more recent start date in the list
+    // before start the average processing
+    DateTime mostRecentStartDate = pricesList.first.first.date;
     for (List<YahooFinanceCandleData> prices in pricesList) {
-      if (prices.first.date.isAfter(startDate)) {
-        startDate = prices.first.date;
+      if (prices.first.date.isAfter(mostRecentStartDate)) {
+        mostRecentStartDate = prices.first.date;
       }
     }
 
     // Discard the dates before start date
     for (List<YahooFinanceCandleData> prices in pricesList) {
-      while (prices.first.date.isBefore(startDate) && prices.isNotEmpty) {
+      while (prices.first.date.isBefore(mostRecentStartDate) &&
+          prices.isNotEmpty) {
         prices.removeAt(0);
       }
     }
@@ -44,6 +50,8 @@ class AverageMixer {
   /// and every movement in your portfolio will be the average of these two assets
   static List<YahooFinanceCandleData> mergeAveragePrices(
       int numberOfAssets, List<List<YahooFinanceCandleData>> pricesList) {
+    List<double> proportion = getProportionList(pricesList);
+
     // Merge the assets in one single dataframe
     int numberOfTimePoints = pricesList[0].length;
     List<YahooFinanceCandleData> result = [];
@@ -52,6 +60,7 @@ class AverageMixer {
       DateTime currentDate = pricesList[0][d].date;
       double sumOpen = 0;
       double sumClose = 0;
+      double sumCloseAdj = 0;
       double sumHigh = 0;
       double sumLow = 0;
       double sumVolume = 0;
@@ -67,17 +76,20 @@ class AverageMixer {
           }
         }
 
-        sumOpen += candle.open;
-        sumClose += candle.close;
+        // Sum while adjusting for inital proportion
+        sumOpen += candle.open / proportion[a];
+        sumClose += candle.close / proportion[a];
+        sumCloseAdj += candle.adjClose / proportion[a];
 
-        sumLow += candle.low;
-        sumHigh += candle.high;
-        sumVolume += candle.volume;
+        sumLow += candle.low / proportion[a];
+        sumHigh += candle.high / proportion[a];
+        sumVolume += candle.volume / proportion[a];
       }
 
       result.add(YahooFinanceCandleData(
           open: sumOpen / numberOfAssets,
           close: sumClose / numberOfAssets,
+          adjClose: sumCloseAdj / numberOfAssets,
           high: sumHigh / numberOfAssets,
           low: sumLow / numberOfAssets,
           volume: (sumVolume / numberOfAssets).round(),
@@ -85,5 +97,36 @@ class AverageMixer {
     }
 
     return result;
+  }
+
+  /// Check by which value each dataframe needs to be multipled to start at the same value
+  static List<double> getProportionList(
+      List<List<YahooFinanceCandleData>> pricesList) {
+    final maxOpenValue = calculateMaxOpenValue(pricesList);
+
+    //
+    List<double> result = [];
+    for (var i = 0; i < pricesList.length; i++) {
+      final open = pricesList[i].first.open;
+      final proportion = open / maxOpenValue;
+
+      result.add(proportion);
+    }
+
+    return result;
+  }
+
+  static calculateMaxOpenValue(List<List<YahooFinanceCandleData>> pricesList) {
+    double maxValue = pricesList.first.first.open;
+
+    for (var i = 1; i < pricesList.length; i++) {
+      final open = pricesList[i].first.open;
+
+      if (maxValue < open) {
+        maxValue = open;
+      }
+    }
+
+    return maxValue;
   }
 }

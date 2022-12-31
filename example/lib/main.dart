@@ -80,7 +80,9 @@ class _BottomSelectionWidgetState extends State<BottomSelectionWidget> {
 }
 
 class RawSearch extends StatefulWidget {
-  const RawSearch({Key? key}) : super(key: key);
+  const RawSearch({
+    super.key,
+  });
 
   @override
   State<RawSearch> createState() => _RawSearchState();
@@ -313,11 +315,35 @@ class _YahooFinanceServiceWidgetState extends State<YahooFinanceServiceWidget> {
       itemCount: pricesList.length + 1,
       itemBuilder: (context, i) {
         if (i == 0) {
+          final List<String> tickerOptions = [
+            'GOOG',
+            'ES=F, GC=F',
+            'GOOG, AAPL'
+          ];
           return Card(
             child: Container(
               margin: const EdgeInsets.all(10),
               child: Column(
                 children: [
+                  Row(
+                    children: tickerOptions
+                        .map(
+                          (option) => Container(
+                            margin: const EdgeInsets.all(5),
+                            child: MaterialButton(
+                              child: Text(option),
+                              onPressed: controller.text == option
+                                  ? null
+                                  : () => setState(() {
+                                        controller.text = option;
+                                      }),
+                              color: Colors.amberAccent,
+                            ),
+                          ),
+                        )
+                        .toList(),
+                  ),
+                  Text('Ticker from yahoo finance:'),
                   TextField(
                     controller: controller,
                   ),

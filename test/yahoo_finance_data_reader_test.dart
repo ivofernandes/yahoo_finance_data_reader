@@ -70,6 +70,15 @@ void main() {
 
     logPerformance(startTime, endTime, 'getDailyDTOs on GOOG last month');
   });
+
+  test('Test mix', () async {
+    final yahooFinance = YahooFinanceService();
+
+    List<YahooFinanceCandleData> prices =
+        await yahooFinance.getTickerData('ES=F, GC=F');
+
+    assert(prices.isNotEmpty);
+  });
 }
 
 void logPerformance(DateTime startTime, DateTime endTime, String message) {
