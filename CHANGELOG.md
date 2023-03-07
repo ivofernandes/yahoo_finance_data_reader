@@ -37,3 +37,6 @@ Improved package with more tests
 ## 1.0.4
 Added validation to support datasources with errors
 Fixed average mix to take in account differences in the beggining of the timeframe
+
+## 1.0.5
+Fix path dependency error
