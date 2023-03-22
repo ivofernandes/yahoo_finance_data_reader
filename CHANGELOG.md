@@ -40,3 +40,6 @@ Fixed average mix to take in account differences in the beggining of the timefra
 
 ## 1.0.5
 Fix path dependency error
+
+## 1.0.6
+Update versions of the dependencies

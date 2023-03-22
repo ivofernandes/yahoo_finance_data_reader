@@ -18,7 +18,7 @@ void main() {
     // last date in the recentPricesList that is 2022-05-12 05:00:00.000
     // and also has null in some element of the old list so to join the algorithm
     // will need to pick a nice date to use as reference
-    List<YahooFinanceCandleData> oldPricesList = [
+    final List<YahooFinanceCandleData> oldPricesList = [
       YahooFinanceCandleData(
         date: DateTime.parse('2022-05-08'),
       ),
@@ -75,7 +75,7 @@ void main() {
       ),
     ];
 
-    List<YahooFinanceCandleData> recentPricesList = [
+    final List<YahooFinanceCandleData> recentPricesList = [
       YahooFinanceCandleData(
         date: DateTime.parse('2022-05-12'),
         open: 12004.5,
@@ -140,14 +140,14 @@ void main() {
       ),
     ];
 
-    List<YahooFinanceCandleData> result =
+    final List<YahooFinanceCandleData> result =
         JoinPrices.joinPrices(oldPricesList, recentPricesList);
 
     JoinPricesTextAux.validateSizeAndContinuity(result, 11);
   });
 
   test('Join prices test without match', () async {
-    List<YahooFinanceCandleData> oldPricesList = [
+    final List<YahooFinanceCandleData> oldPricesList = [
       YahooFinanceCandleData(
         date: DateTime.parse('2021-09-29'),
         adjClose: 1,
@@ -162,14 +162,14 @@ void main() {
       ),
     ];
 
-    List<YahooFinanceCandleData> recentPricesList = [
+    final List<YahooFinanceCandleData> recentPricesList = [
       YahooFinanceCandleData(
         date: DateTime.parse('2021-10-05'),
         adjClose: 3,
       ),
     ];
 
-    List<YahooFinanceCandleData> result =
+    final List<YahooFinanceCandleData> result =
         JoinPrices.joinPrices(oldPricesList, recentPricesList);
 
     JoinPricesTextAux.validateSizeAndContinuity(result, 4);
@@ -184,7 +184,7 @@ void main() {
 
 void addTimestampForTesting(List<Map<String, dynamic>> list) {
   for (int i = 0; i < list.length; i++) {
-    list[i]['datetime'] =
-        DateTime.fromMillisecondsSinceEpoch(list[i]['date'] * 1000);
+    final int dateNum = list[i]['date'] as int;
+    list[i]['datetime'] = DateTime.fromMillisecondsSinceEpoch(dateNum * 1000);
   }
 }

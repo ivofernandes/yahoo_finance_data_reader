@@ -61,10 +61,10 @@ packages:
     dependency: transitive
     description:
       name: dio
-      sha256: "7d328c4d898a61efc3cd93655a0955858e29a0aa647f0f9e02d59b3bb275e2e8"
+      sha256: "3e5c4a94d112540d0c9a6b7f3969832e1604eb8cde0f88d0808382f9f632100b"
       url: "https://pub.dev"
     source: hosted
-    version: "4.0.6"
+    version: "5.0.3"
   fake_async:
     dependency: transitive
     description:
@@ -119,10 +119,10 @@ packages:
     dependency: transitive
     description:
       name: idb_shim
-      sha256: a9ae90f8fa15cdd5fdf205a43d02e9acfe3f0e5ac3e4faeab706396be5732db7
+      sha256: "3ac9d6a90c29e2192d35c8386d7b20cb3865756f5b299d74a829d5b888776d26"
       url: "https://pub.dev"
     source: hosted
-    version: "2.1.0"
+    version: "2.3.0+2"
   js:
     dependency: transitive
     description:
@@ -175,10 +175,10 @@ packages:
     dependency: transitive
     description:
       name: path_provider
-      sha256: "050e8e85e4b7fecdf2bb3682c1c64c4887a183720c802d323de8a5fd76d372dd"
+      sha256: c7edf82217d4b2952b2129a61d3ad60f1075b9299e629e149a8d2e39c2e6aad4
       url: "https://pub.dev"
     source: hosted
-    version: "2.0.11"
+    version: "2.0.14"
   path_provider_android:
     dependency: transitive
     description:
@@ -187,14 +187,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.0.22"
-  path_provider_ios:
+  path_provider_foundation:
     dependency: transitive
     description:
-      name: path_provider_ios
-      sha256: "03d639406f5343478352433f00d3c4394d52dac8df3d847869c5e2333e0bbce8"
+      name: path_provider_foundation
+      sha256: "12eee51abdf4d34c590f043f45073adbb45514a108bd9db4491547a2fd891059"
       url: "https://pub.dev"
     source: hosted
-    version: "2.0.11"
+    version: "2.2.0"
   path_provider_linux:
     dependency: transitive
     description:
@@ -203,14 +203,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.1.7"
-  path_provider_macos:
-    dependency: transitive
-    description:
-      name: path_provider_macos
-      sha256: "2a97e7fbb7ae9dcd0dfc1220a78e9ec3e71da691912e617e8715ff2a13086ae8"
-      url: "https://pub.dev"
-    source: hosted
-    version: "2.0.6"
   path_provider_platform_interface:
     dependency: transitive
     description:
@@ -255,18 +247,18 @@ packages:
     dependency: transitive
     description:
       name: sembast
-      sha256: f0e1d847842bb5452ad4b8b0966c68932b81ffa2255cba4c7aadf6b7fb3723fe
+      sha256: "82f89201b98597ed13253a5fa750ac6b6bba3a9d4a91db7f07c9470baac33a4e"
       url: "https://pub.dev"
     source: hosted
-    version: "3.3.1+1"
+    version: "3.4.3"
   sembast_web:
     dependency: transitive
     description:
       name: sembast_web
-      sha256: "6bb4d002bfe346c9d25824cabd386fa72f194432910f859bc0eeda3cadf8aa0f"
+      sha256: "2c651c54e7df9cfcd6a03e1b4aabbeeec5ab713c97e5c2485ae84c0554005eec"
       url: "https://pub.dev"
     source: hosted
-    version: "2.0.1+1"
+    version: "2.1.2"
   sky_engine:
     dependency: transitive
     description: flutter
@@ -308,10 +300,10 @@ packages:
     dependency: transitive
     description:
       name: synchronized
-      sha256: "7b530acd9cb7c71b0019a1e7fa22c4105e675557a4400b6a401c71c5e0ade1ac"
+      sha256: "33b31b6beb98100bf9add464a36a8dd03eb10c7a8cf15aeec535e9b054aaf04b"
       url: "https://pub.dev"
     source: hosted
-    version: "3.0.0+3"
+    version: "3.0.1"
   term_glyph:
     dependency: transitive
     description:

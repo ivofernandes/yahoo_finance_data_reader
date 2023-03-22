@@ -1,14 +1,15 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:yahoo_finance_data_reader/yahoo_finance_data_reader.dart';
 
 void main() {
   test('Test get yahoo finance data on GOOG', () async {
-    DateTime startTime = DateTime.now();
+    final DateTime startTime = DateTime.now();
     const yahooFinance = YahooFinanceDailyReader();
 
-    Map<String, dynamic> data = await yahooFinance.getDailyData('GOOG');
+    final Map<String, dynamic> data = await yahooFinance.getDailyData('GOOG');
 
-    DateTime endTime = DateTime.now();
+    final DateTime endTime = DateTime.now();
 
     logPerformance(startTime, endTime, 'getDailyData on GOOG');
     assert(data.isNotEmpty);
@@ -17,11 +18,11 @@ void main() {
   test('Test get yahoo finance DTO on GOOG', () async {
     const yahooFinance = YahooFinanceDailyReader();
 
-    DateTime startTime = DateTime.now();
+    final DateTime startTime = DateTime.now();
 
-    YahooFinanceResponse data = await yahooFinance.getDailyDTOs('GOOG');
+    final YahooFinanceResponse data = await yahooFinance.getDailyDTOs('GOOG');
 
-    DateTime endTime = DateTime.now();
+    final DateTime endTime = DateTime.now();
 
     assert(data.candlesData.isNotEmpty);
 
@@ -31,11 +32,11 @@ void main() {
   test('Test get yahoo finance DTO on ^GSPC', () async {
     const yahooFinance = YahooFinanceDailyReader();
 
-    DateTime startTime = DateTime.now();
+    final DateTime startTime = DateTime.now();
 
-    YahooFinanceResponse data = await yahooFinance.getDailyDTOs('^GSPC');
+    final YahooFinanceResponse data = await yahooFinance.getDailyDTOs('^GSPC');
 
-    DateTime endTime = DateTime.now();
+    final DateTime endTime = DateTime.now();
 
     assert(data.candlesData.isNotEmpty);
 
@@ -43,12 +44,12 @@ void main() {
   });
 
   test('Test get yahoo finance data on ^GSPC', () async {
-    DateTime startTime = DateTime.now();
+    final DateTime startTime = DateTime.now();
     const yahooFinance = YahooFinanceDailyReader();
 
-    Map<String, dynamic> data = await yahooFinance.getDailyData('^GSPC');
+    final Map<String, dynamic> data = await yahooFinance.getDailyData('^GSPC');
 
-    DateTime endTime = DateTime.now();
+    final DateTime endTime = DateTime.now();
 
     logPerformance(startTime, endTime, 'getDailyData on ^GSPC');
     assert(data.isNotEmpty);
@@ -57,14 +58,14 @@ void main() {
   test('Test get yahoo finance DTO on GOOG', () async {
     const yahooFinance = YahooFinanceDailyReader();
 
-    DateTime startTime = DateTime.now();
+    final DateTime startTime = DateTime.now();
 
-    YahooFinanceResponse data = await yahooFinance.getDailyDTOs(
+    final YahooFinanceResponse data = await yahooFinance.getDailyDTOs(
       'GOOG',
       startDate: DateTime.now().subtract(const Duration(days: 30)),
     );
 
-    DateTime endTime = DateTime.now();
+    final DateTime endTime = DateTime.now();
 
     assert(data.candlesData.isNotEmpty);
 
@@ -74,15 +75,18 @@ void main() {
   test('Test mix', () async {
     final yahooFinance = YahooFinanceService();
 
-    List<YahooFinanceCandleData> prices =
-        await yahooFinance.getTickerData('ES=F, GC=F');
+    final List<YahooFinanceCandleData> prices =
+        await yahooFinance.getTickerData(
+      'ES=F, GC=F',
+      useCache: false,
+    );
 
     assert(prices.isNotEmpty);
   });
 }
 
 void logPerformance(DateTime startTime, DateTime endTime, String message) {
-  Duration duration = endTime.difference(startTime);
+  final Duration duration = endTime.difference(startTime);
 
-  print('$message: $duration');
+  debugPrint('$message: $duration');
 }

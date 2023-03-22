@@ -26,7 +26,7 @@ class YahooFinanceDailyReader {
       startTimestamp = (startDate.millisecondsSinceEpoch / 1000).floor();
     }
 
-    Map<String, dynamic> dailyData = await getDailyData(
+    final Map<String, dynamic> dailyData = await getDailyData(
       ticker,
       startTimestamp: startTimestamp,
     );
@@ -40,20 +40,20 @@ class YahooFinanceDailyReader {
     String ticker, {
     int? startTimestamp = -2208994789,
   }) async {
-    startTimestamp = startTimestamp ?? -2208994789;
-    ticker = ticker.toUpperCase();
+    final startTimestampReady = startTimestamp ?? -2208994789;
+    final tickerUpperCase = ticker.toUpperCase();
 
-    String now =
+    final String now =
         (DateTime.now().millisecondsSinceEpoch / 1000).round().toString();
 
-    String params =
-        'period1=$startTimestamp&period2=$now&interval=1d&includePrePost=False&events=div,splits';
-    String url =
-        'https://query2.finance.yahoo.com/v8/finance/chart/$ticker?$params';
+    final String params =
+        'period1=$startTimestampReady&period2=$now&interval=1d&includePrePost=False&events=div,splits';
+    final String url =
+        'https://query2.finance.yahoo.com/v8/finance/chart/$tickerUpperCase?$params';
 
-    Dio dio = Dio();
-    dio.options.connectTimeout = timeout.inMilliseconds;
-    dio.options.receiveTimeout = timeout.inMilliseconds;
+    final Dio dio = Dio();
+    dio.options.connectTimeout = Duration(milliseconds: timeout.inMilliseconds);
+    dio.options.receiveTimeout = Duration(milliseconds: timeout.inMilliseconds);
 
     Map<String, dynamic> currentHeaders = {
       'content-type': 'application/json',
@@ -67,12 +67,12 @@ class YahooFinanceDailyReader {
 
     dio.options.headers = currentHeaders;
 
-    Response response = await dio.get(url);
+    final Response<dynamic> response = await dio.get(url);
 
     if (response.statusCode == 200) {
-      String body = response.toString();
+      final String body = response.toString();
 
-      return await _computeResponse(body);
+      return _computeResponse(body);
     }
 
     // If was not a 200 status code, return empty list
@@ -80,16 +80,18 @@ class YahooFinanceDailyReader {
   }
 
   /// create the isolate to process the response
-  Future<Map<String, dynamic>> _computeResponse(String value) {
-    return compute(_processResponse, value);
-  }
+  Future<Map<String, dynamic>> _computeResponse(String value) =>
+      compute(_processResponse, value);
 
   /// Process to get the daily data from the html response
   Map<String, dynamic> _processResponse(String body) {
     // Parse all json
-    Map<String, dynamic> json = jsonDecode(body);
+    final Map<String, dynamic> json = jsonDecode(body) as Map<String, dynamic>;
 
-    Map<String, dynamic>? historicalPrice = json['chart']['result'].first;
+    final chart = json['chart'] as Map<String, dynamic>;
+    final result = chart['result'] as List<dynamic>;
+    final Map<String, dynamic>? historicalPrice =
+        result.first as Map<String, dynamic>?;
     return historicalPrice ?? {};
   }
 }

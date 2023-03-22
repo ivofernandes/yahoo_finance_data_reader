@@ -5,27 +5,27 @@ import 'package:sembast/sembast.dart';
 import 'package:sembast/sembast_io.dart';
 import 'package:sembast_web/sembast_web.dart';
 
-class SembastDatabase {
+mixin SembastDatabase {
   static const String dbName = 'sembast';
 
   Database? _db;
 
-  _initWebDatabase() async {
-    var factory = databaseFactoryWeb;
+  Future<void> _initWebDatabase() async {
+    final factory = databaseFactoryWeb;
 
     // Open the database
     _db = await factory.openDatabase(dbName);
   }
 
-  _initNativeDatabase() async {
-    var dir = await getApplicationDocumentsDirectory();
+  Future<void> _initNativeDatabase() async {
+    final dir = await getApplicationDocumentsDirectory();
     await dir.create(recursive: true);
-    String dbPath = join(dir.path, dbName);
+    final String dbPath = join(dir.path, dbName);
 
     _db = await databaseFactoryIo.openDatabase(dbPath);
   }
 
-  initDatabase() async {
+  Future<void> initDatabase() async {
     if (kIsWeb) {
       await _initWebDatabase();
     } else {

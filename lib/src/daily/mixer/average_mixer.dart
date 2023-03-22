@@ -2,11 +2,12 @@ import 'dart:math';
 
 import 'package:yahoo_finance_data_reader/yahoo_finance_data_reader.dart';
 
+/// Mix a list of prices dataframes
 class AverageMixer {
   /// Mix a list of prices dataframes in the average
   static List<YahooFinanceCandleData> mix(
       List<List<YahooFinanceCandleData>> pricesList) {
-    int numberOfAssets = pricesList.length;
+    final int numberOfAssets = pricesList.length;
 
     // Validate if the assets are possible to merge
     if (numberOfAssets < 1) {
@@ -29,14 +30,14 @@ class AverageMixer {
     // Get the more recent start date in the list
     // before start the average processing
     DateTime mostRecentStartDate = pricesList.first.first.date;
-    for (List<YahooFinanceCandleData> prices in pricesList) {
+    for (final List<YahooFinanceCandleData> prices in pricesList) {
       if (prices.first.date.isAfter(mostRecentStartDate)) {
         mostRecentStartDate = prices.first.date;
       }
     }
 
     // Discard the dates before start date
-    for (List<YahooFinanceCandleData> prices in pricesList) {
+    for (final List<YahooFinanceCandleData> prices in pricesList) {
       while (prices.first.date.isBefore(mostRecentStartDate) &&
           prices.isNotEmpty) {
         prices.removeAt(0);
@@ -50,14 +51,14 @@ class AverageMixer {
   /// and every movement in your portfolio will be the average of these two assets
   static List<YahooFinanceCandleData> mergeAveragePrices(
       int numberOfAssets, List<List<YahooFinanceCandleData>> pricesList) {
-    List<double> proportion = getProportionList(pricesList);
+    final List<double> proportion = getProportionList(pricesList);
 
     // Merge the assets in one single dataframe
-    int numberOfTimePoints = pricesList[0].length;
-    List<YahooFinanceCandleData> result = [];
+    final int numberOfTimePoints = pricesList[0].length;
+    final List<YahooFinanceCandleData> result = [];
 
     for (int d = 0; d < numberOfTimePoints; d++) {
-      DateTime currentDate = pricesList[0][d].date;
+      final DateTime currentDate = pricesList[0][d].date;
       double sumOpen = 0;
       double sumClose = 0;
       double sumCloseAdj = 0;
@@ -105,7 +106,7 @@ class AverageMixer {
     final maxOpenValue = calculateMaxOpenValue(pricesList);
 
     //
-    List<double> result = [];
+    final List<double> result = [];
     for (var i = 0; i < pricesList.length; i++) {
       final open = pricesList[i].first.open;
       final proportion = open / maxOpenValue;
@@ -116,7 +117,8 @@ class AverageMixer {
     return result;
   }
 
-  static calculateMaxOpenValue(List<List<YahooFinanceCandleData>> pricesList) {
+  static double calculateMaxOpenValue(
+      List<List<YahooFinanceCandleData>> pricesList) {
     double maxValue = pricesList.first.first.open;
 
     for (var i = 1; i < pricesList.length; i++) {

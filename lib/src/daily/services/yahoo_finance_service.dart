@@ -12,17 +12,23 @@ import 'package:yahoo_finance_data_reader/src/daily/storage/yahoo_finance_dao.da
 class YahooFinanceService {
   // Singleton
   static final YahooFinanceService _singleton = YahooFinanceService._internal();
-  factory YahooFinanceService() {
-    return _singleton;
-  }
+
+  factory YahooFinanceService() => _singleton;
+
   YahooFinanceService._internal();
 
   Future<List<YahooFinanceCandleData>> getTickerDataList(
-      List<String> symbols) async {
-    List<List<YahooFinanceCandleData>> pricesList = [];
+    List<String> symbols, {
+    bool useCache = true,
+  }) async {
+    final List<List<YahooFinanceCandleData>> pricesList = [];
 
-    for (String symbol in symbols) {
-      List<YahooFinanceCandleData> prices = await getTickerData(symbol);
+    for (final String symbol in symbols) {
+      final List<YahooFinanceCandleData> prices = await getTickerData(
+        symbol,
+        useCache: useCache,
+      );
+
       pricesList.add(prices);
     }
 
@@ -30,23 +36,38 @@ class YahooFinanceService {
   }
 
   /// Gets the candles for a ticker
-  Future<List<YahooFinanceCandleData>> getTickerData(String symbol) async {
+  Future<List<YahooFinanceCandleData>> getTickerData(
+    String symbol, {
+    bool useCache = true,
+  }) async {
     if (symbol.contains(',')) {
-      List<String> symbols = symbol.split(', ');
-      return getTickerDataList(symbols);
+      final List<String> symbols = symbol.split(', ');
+      return getTickerDataList(
+        symbols,
+        useCache: useCache,
+      );
     }
 
     // Try to get data from cache
-    List<dynamic>? pricesRaw = await YahooFinanceDAO().getAllDailyData(symbol);
+    List<dynamic>? pricesRaw;
+    if (useCache) {
+      pricesRaw = await YahooFinanceDAO().getAllDailyData(symbol);
+    }
+
     List<YahooFinanceCandleData> prices = [];
 
     for (final priceRaw in pricesRaw ?? []) {
-      prices.add(YahooFinanceCandleData.fromJson(priceRaw));
+      final YahooFinanceCandleData price =
+          YahooFinanceCandleData.fromJson(priceRaw as Map<String, dynamic>);
+      prices.add(price);
     }
 
     // If have no cached historical data
     if (prices.isEmpty) {
-      prices = await getAllDataFromYahooFinance(symbol);
+      prices = await getAllDataFromYahooFinance(
+        symbol,
+        useCache: useCache,
+      );
     }
 
     // If there is offline data but is not up to date
@@ -59,28 +80,30 @@ class YahooFinanceService {
   }
 
   Future<List<YahooFinanceCandleData>> refreshData(
-      List<YahooFinanceCandleData> prices, String symbol) async {
+      List<YahooFinanceCandleData> pricesParam, String symbol) async {
+    List<YahooFinanceCandleData> prices = pricesParam;
+
     if (prices.length > 1) {
       // Get one of the lasts dates in the cache, this is not the most recent,
       // because the most recent often is in the middle of the day,
       // and the yahoo finance returns us the current price in the close price column,
       // and for joining dates, we need real instead of the real close prices
-      DateTime lastDate = prices[2].date;
+      final DateTime lastDate = prices[2].date;
 
-      YahooFinanceResponse response =
+      final YahooFinanceResponse response =
           await const YahooFinanceDailyReader().getDailyDTOs(
         symbol,
         startDate: lastDate,
       );
-      List<YahooFinanceCandleData> nextPrices = response.candlesData;
+      final List<YahooFinanceCandleData> nextPrices = response.candlesData;
 
-      if (nextPrices != []) {
+      if (nextPrices != <YahooFinanceCandleData>[]) {
         prices = JoinPrices.joinPrices(prices, nextPrices);
 
-        List jsonList =
+        final List<dynamic> jsonList =
             YahooFinanceResponse(candlesData: prices).toCandlesJson();
         // Cache data after join locally
-        YahooFinanceDAO().saveDailyData(symbol, jsonList);
+        unawaited(YahooFinanceDAO().saveDailyData(symbol, jsonList));
         return prices;
       }
     }
@@ -89,8 +112,11 @@ class YahooFinanceService {
     return getAllDataFromYahooFinance(symbol);
   }
 
+  /// Gets all data from yahoo finance
   Future<List<YahooFinanceCandleData>> getAllDataFromYahooFinance(
-      String symbol) async {
+    String symbol, {
+    bool useCache = true,
+  }) async {
     YahooFinanceResponse response = YahooFinanceResponse();
 
     // Get data from yahoo finance
@@ -103,8 +129,12 @@ class YahooFinanceService {
     if (response.candlesData.isNotEmpty) {
       // Cache data locally
 
-      List jsonList = response.toCandlesJson();
-      YahooFinanceDAO().saveDailyData(symbol, jsonList);
+      final List<dynamic> jsonList = response.toCandlesJson();
+
+      if (useCache) {
+        unawaited(YahooFinanceDAO().saveDailyData(symbol, jsonList));
+      }
+
       return response.candlesData;
     }
 

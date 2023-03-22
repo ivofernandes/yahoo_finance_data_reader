@@ -1,3 +1,5 @@
+// ignore_for_file: prefer_final_locals
+
 import 'package:yahoo_finance_data_reader/yahoo_finance_data_reader.dart';
 
 class StrategyTime {

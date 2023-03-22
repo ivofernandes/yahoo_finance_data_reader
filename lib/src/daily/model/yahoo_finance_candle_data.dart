@@ -1,15 +1,30 @@
 /// Representation of a single candle
 class YahooFinanceCandleData {
+  /// Date of the candle
   final DateTime date;
+
+  /// Open price
   final double open;
+
+  /// High price
   final double high;
+
+  /// Low price
   final double low;
+
+  /// Close price
   final double close;
+
+  /// Volume
   final int volume;
+
+  /// Adjusted close price, by splits and dividends
   final double adjClose;
 
+  /// Map to receive indicators associated with this candle
   Map<String, double> indicators = {};
 
+  /// Constructor
   YahooFinanceCandleData({
     required this.date,
     this.open = -1,
@@ -20,40 +35,38 @@ class YahooFinanceCandleData {
     this.volume = 0,
   });
 
-  factory YahooFinanceCandleData.fromJson(json) {
-    return YahooFinanceCandleData(
-      date: DateTime.fromMillisecondsSinceEpoch(json['date'] * 1000),
-      open: double.parse(json['open'].toString()),
-      high: double.parse(json['high'].toString()),
-      low: double.parse(json['low'].toString()),
-      close: double.parse(json['close'].toString()),
-      adjClose: double.parse(json['adjClose'].toString()),
-      volume: int.parse(json['volume'].toString()),
-    );
-  }
+  factory YahooFinanceCandleData.fromJson(Map<String, dynamic> json) =>
+      YahooFinanceCandleData(
+        date: DateTime.fromMillisecondsSinceEpoch((json['date'] as int) * 1000),
+        open: double.parse(json['open'].toString()),
+        high: double.parse(json['high'].toString()),
+        low: double.parse(json['low'].toString()),
+        close: double.parse(json['close'].toString()),
+        adjClose: double.parse(json['adjClose'].toString()),
+        volume: int.parse(json['volume'].toString()),
+      );
 
   /// Create a list of YahooFinanceCandleData based in a json array
-  static List<YahooFinanceCandleData> fromJsonList(List jsonList) {
-    List<YahooFinanceCandleData> result = [];
+  static List<YahooFinanceCandleData> fromJsonList(
+      List<Map<String, dynamic>> jsonList) {
+    final List<YahooFinanceCandleData> result = [];
 
-    for (final jsonObject in jsonList) {
+    for (final Map<String, dynamic> jsonObject in jsonList) {
       result.add(YahooFinanceCandleData.fromJson(jsonObject));
     }
 
     return result;
   }
 
-  Map toJson() {
-    return {
-      'date': date.millisecondsSinceEpoch ~/ 1000,
-      'adjClose': adjClose,
-      'open': open,
-      'close': close,
-      'high': high,
-      'low': low,
-      'volume': volume,
-    };
-  }
+  Map<String, dynamic> toJson() => {
+        'date': date.millisecondsSinceEpoch ~/ 1000,
+        'adjClose': adjClose,
+        'open': open,
+        'close': close,
+        'high': high,
+        'low': low,
+        'volume': volume,
+      };
 
   @override
   String toString() =>
@@ -68,15 +81,14 @@ class YahooFinanceCandleData {
     double? high,
     double? low,
     int? volume,
-  }) {
-    return YahooFinanceCandleData(
-      date: date ?? this.date,
-      open: open ?? this.open,
-      close: close ?? this.close,
-      adjClose: adjClose ?? this.adjClose,
-      high: high ?? this.high,
-      low: low ?? this.low,
-      volume: volume ?? this.volume,
-    );
-  }
+  }) =>
+      YahooFinanceCandleData(
+        date: date ?? this.date,
+        open: open ?? this.open,
+        close: close ?? this.close,
+        adjClose: adjClose ?? this.adjClose,
+        high: high ?? this.high,
+        low: low ?? this.low,
+        volume: volume ?? this.volume,
+      );
 }

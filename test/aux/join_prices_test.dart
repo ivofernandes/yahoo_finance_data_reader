@@ -13,7 +13,7 @@ import 'join_prices_text_aux.dart';
 
 void main() {
   test('Join prices test', () async {
-    List<YahooFinanceCandleData> oldPricesList = [
+    final List<YahooFinanceCandleData> oldPricesList = [
       YahooFinanceCandleData(
         date: DateTime.parse('2021-09-29'),
         adjClose: 53.470001220703125,
@@ -28,7 +28,7 @@ void main() {
       ),
     ];
 
-    List<YahooFinanceCandleData> recentPricesList = [
+    final List<YahooFinanceCandleData> recentPricesList = [
       YahooFinanceCandleData(
         date: DateTime.parse('2021-10-01'),
         adjClose: 54.310001373291016,
@@ -43,14 +43,14 @@ void main() {
       ),
     ];
 
-    List<YahooFinanceCandleData> result =
+    final List<YahooFinanceCandleData> result =
         JoinPrices.joinPrices(oldPricesList, recentPricesList);
 
     JoinPricesTextAux.validateSizeAndContinuity(result, 4);
   });
 
   test('Join prices test split 1/2', () async {
-    List<YahooFinanceCandleData> oldPricesList = [
+    final List<YahooFinanceCandleData> oldPricesList = [
       YahooFinanceCandleData(
         date: DateTime.parse('2021-09-29'),
         adjClose: 1,
@@ -65,7 +65,7 @@ void main() {
       ),
     ];
 
-    List<YahooFinanceCandleData> recentPricesList = [
+    final List<YahooFinanceCandleData> recentPricesList = [
       YahooFinanceCandleData(
         date: DateTime.parse('2021-10-01'),
         adjClose: 1.5,
@@ -80,7 +80,7 @@ void main() {
       ),
     ];
 
-    List<YahooFinanceCandleData> result =
+    final List<YahooFinanceCandleData> result =
         JoinPrices.joinPrices(oldPricesList, recentPricesList);
 
     JoinPricesTextAux.validateSizeAndContinuity(result, 4);

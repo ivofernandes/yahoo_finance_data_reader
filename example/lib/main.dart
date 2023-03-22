@@ -38,10 +38,10 @@ class _BottomSelectionWidgetState extends State<BottomSelectionWidget> {
       body: Container(
         padding: const EdgeInsets.all(20.0),
         child: PageView(
-          physics: NeverScrollableScrollPhysics(),
+          physics: const NeverScrollableScrollPhysics(),
           controller: _pageController,
           onPageChanged: _onItemSelected,
-          children: [
+          children: const [
             YahooFinanceServiceWidget(),
             DTOSearch(),
             RawSearch(),
@@ -75,7 +75,7 @@ class _BottomSelectionWidgetState extends State<BottomSelectionWidget> {
           duration: const Duration(milliseconds: 200), curve: Curves.easeOut);
       _selectedIndex = index;
     });
-    print(index.toString());
+    debugPrint(index.toString());
   }
 }
 
@@ -92,7 +92,8 @@ class _RawSearchState extends State<RawSearch> {
   @override
   Widget build(BuildContext context) {
     String ticker = 'GOOG';
-    YahooFinanceDailyReader yahooFinanceDataReader = YahooFinanceDailyReader();
+    YahooFinanceDailyReader yahooFinanceDataReader =
+        const YahooFinanceDailyReader();
 
     Future<Map<String, dynamic>> future =
         yahooFinanceDataReader.getDailyData(ticker);
@@ -165,7 +166,7 @@ class _DTOSearchState extends State<DTOSearch> {
         ),
         MaterialButton(
           onPressed: load,
-          child: Text('Load'),
+          child: const Text('Load'),
           color: Theme.of(context).primaryColor,
         ),
         Expanded(
@@ -175,7 +176,7 @@ class _DTOSearchState extends State<DTOSearch> {
                 AsyncSnapshot<YahooFinanceResponse> snapshot) {
               if (snapshot.connectionState == ConnectionState.done) {
                 if (snapshot.data == null) {
-                  return Text('No data');
+                  return const Text('No data');
                 }
 
                 YahooFinanceResponse response = snapshot.data!;
@@ -204,13 +205,14 @@ class _DTOSearchState extends State<DTOSearch> {
   }
 
   void load() {
-    future = YahooFinanceDailyReader().getDailyDTOs(controller.text);
+    future = const YahooFinanceDailyReader().getDailyDTOs(controller.text);
     setState(() {});
   }
 }
 
 class _CandleCard extends StatelessWidget {
   final YahooFinanceCandleData candle;
+
   const _CandleCard(this.candle);
 
   @override
@@ -325,25 +327,28 @@ class _YahooFinanceServiceWidgetState extends State<YahooFinanceServiceWidget> {
               margin: const EdgeInsets.all(10),
               child: Column(
                 children: [
-                  Row(
-                    children: tickerOptions
-                        .map(
-                          (option) => Container(
-                            margin: const EdgeInsets.all(5),
-                            child: MaterialButton(
-                              child: Text(option),
-                              onPressed: controller.text == option
-                                  ? null
-                                  : () => setState(() {
-                                        controller.text = option;
-                                      }),
-                              color: Colors.amberAccent,
+                  SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    child: Row(
+                      children: tickerOptions
+                          .map(
+                            (option) => Container(
+                              margin: const EdgeInsets.all(5),
+                              child: MaterialButton(
+                                child: Text(option),
+                                onPressed: controller.text == option
+                                    ? null
+                                    : () => setState(() {
+                                          controller.text = option;
+                                        }),
+                                color: Colors.amberAccent,
+                              ),
                             ),
-                          ),
-                        )
-                        .toList(),
+                          )
+                          .toList(),
+                    ),
                   ),
-                  Text('Ticker from yahoo finance:'),
+                  const Text('Ticker from yahoo finance:'),
                   TextField(
                     controller: controller,
                   ),
