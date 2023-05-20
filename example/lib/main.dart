@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
+import 'package:intl/intl.dart';
 import 'package:yahoo_finance_data_reader/yahoo_finance_data_reader.dart';
 
 void main() {
@@ -270,6 +272,7 @@ class _YahooFinanceServiceWidgetState extends State<YahooFinanceServiceWidget> {
   List<YahooFinanceCandleData> pricesList = [];
   List? cachedPrices;
   bool loading = true;
+  DateTime? startDate;
 
   @override
   void initState() {
@@ -282,10 +285,13 @@ class _YahooFinanceServiceWidgetState extends State<YahooFinanceServiceWidget> {
     setState(() {});
 
     // Get response for the first time
-    pricesList = await YahooFinanceService().getTickerData(controller.text);
+    pricesList = await YahooFinanceService()
+        .getTickerData(controller.text, startDate: startDate);
 
     // Check if the cache was created
-    cachedPrices = await YahooFinanceDAO().getAllDailyData(controller.text);
+    cachedPrices = await YahooFinanceDAO().getAllDailyData(
+      controller.text,
+    );
     loading = false;
     setState(() {});
   }
@@ -320,7 +326,7 @@ class _YahooFinanceServiceWidgetState extends State<YahooFinanceServiceWidget> {
           final List<String> tickerOptions = [
             'GOOG',
             'ES=F, GC=F',
-            'GOOG, AAPL'
+            'GOOG, AAPL',
           ];
           return Card(
             child: Container(
@@ -347,6 +353,32 @@ class _YahooFinanceServiceWidgetState extends State<YahooFinanceServiceWidget> {
                           )
                           .toList(),
                     ),
+                  ),
+                  Row(
+                    children: [
+                      Text(
+                        startDate != null
+                            ? 'Selected Date: ${DateFormat('yyyy-MM-dd').format(startDate!)}'
+                            : 'No Date Selected',
+                      ),
+                      MaterialButton(
+                        onPressed: () {
+                          DatePicker.showDatePicker(
+                            context,
+                            showTitleActions: true,
+                            onConfirm: (date) {
+                              setState(() {
+                                startDate = date;
+                              });
+                            },
+                          );
+                        },
+                        child: Text(
+                          'Select Date',
+                          style: TextStyle(color: Colors.blue),
+                        ),
+                      ),
+                    ],
                   ),
                   const Text('Ticker from yahoo finance:'),
                   TextField(
@@ -383,7 +415,9 @@ class _YahooFinanceServiceWidgetState extends State<YahooFinanceServiceWidget> {
           );
         } else {
           final YahooFinanceCandleData candleData = pricesList[i - 1];
-          return _CandleCard(candleData);
+          return _CandleCard(
+            candleData,
+          );
         }
       },
     );

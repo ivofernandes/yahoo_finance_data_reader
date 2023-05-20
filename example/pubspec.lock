@@ -53,10 +53,10 @@ packages:
     dependency: "direct main"
     description:
       name: cupertino_icons
-      sha256: "1989d917fbe8e6b39806207df5a3fdd3d816cbd090fac2ce26fb45e9a71476e5"
+      sha256: e35129dc44c9118cee2a5603506d823bab99c68393879edb440e0090d07586be
       url: "https://pub.dev"
     source: hosted
-    version: "1.0.4"
+    version: "1.0.5"
   dio:
     dependency: transitive
     description:
@@ -94,6 +94,14 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
+  flutter_datetime_picker:
+    dependency: "direct main"
+    description:
+      name: flutter_datetime_picker
+      sha256: "8e695c63c769350e541951227c2775190ec73ceda774a315b1dc9a99d5facfe5"
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.5.1"
   flutter_lints:
     dependency: "direct dev"
     description:
@@ -123,6 +131,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.3.0+2"
+  intl:
+    dependency: "direct main"
+    description:
+      name: intl
+      sha256: "910f85bce16fb5c6f614e117efa303e85a1731bb0081edf3604a2ae6e9a3cc91"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.17.0"
   js:
     dependency: transitive
     description:
@@ -247,10 +263,10 @@ packages:
     dependency: transitive
     description:
       name: sembast
-      sha256: "82f89201b98597ed13253a5fa750ac6b6bba3a9d4a91db7f07c9470baac33a4e"
+      sha256: "24829715d11c2c437e67b413f29ff91b5325daa9632f851d44deeea7a29bde9e"
       url: "https://pub.dev"
     source: hosted
-    version: "3.4.3"
+    version: "3.4.3+1"
   sembast_web:
     dependency: transitive
     description:
@@ -358,7 +374,7 @@ packages:
       path: ".."
       relative: true
     source: path
-    version: "1.0.5"
+    version: "1.0.7"
 sdks:
   dart: ">=2.18.0 <3.0.0"
   flutter: ">=3.0.0"

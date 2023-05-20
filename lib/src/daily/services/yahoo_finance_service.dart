@@ -58,7 +58,8 @@ class YahooFinanceService {
     List<YahooFinanceCandleData> prices = [];
 
     for (final priceRaw in pricesRaw ?? []) {
-      final YahooFinanceCandleData price = YahooFinanceCandleData.fromJson(priceRaw as Map<String, dynamic>);
+      final YahooFinanceCandleData price =
+          YahooFinanceCandleData.fromJson(priceRaw as Map<String, dynamic>);
       prices.add(price);
     }
 
@@ -67,13 +68,18 @@ class YahooFinanceService {
       prices = await getAllDataFromYahooFinance(
         symbol,
         useCache: useCache,
+        startDate: startDate,
       );
     }
 
     // If there is offline data but is not up to date
     // try to get the remaining part
     else if (!StrategyTime.isUpToDate(prices)) {
-      prices = await refreshData(prices, symbol, startDate: startDate);
+      prices = await refreshData(
+        prices,
+        symbol,
+        startDate: startDate,
+      );
     }
 
     return prices;
@@ -93,7 +99,8 @@ class YahooFinanceService {
       // and for joining dates, we need real instead of the real close prices
       final DateTime lastDate = prices[2].date;
 
-      final YahooFinanceResponse response = await const YahooFinanceDailyReader().getDailyDTOs(
+      final YahooFinanceResponse response =
+          await const YahooFinanceDailyReader().getDailyDTOs(
         symbol,
         startDate: lastDate,
       );
@@ -102,7 +109,8 @@ class YahooFinanceService {
       if (nextPrices != <YahooFinanceCandleData>[]) {
         prices = JoinPrices.joinPrices(prices, nextPrices);
 
-        final List<dynamic> jsonList = YahooFinanceResponse(candlesData: prices).toCandlesJson();
+        final List<dynamic> jsonList =
+            YahooFinanceResponse(candlesData: prices).toCandlesJson();
         // Cache data after join locally
         unawaited(YahooFinanceDAO().saveDailyData(symbol, jsonList));
         return prices;
@@ -126,7 +134,8 @@ class YahooFinanceService {
 
     // Get data from yahoo finance
     try {
-      response = await const YahooFinanceDailyReader().getDailyDTOs(symbol, startDate: startDate);
+      response = await const YahooFinanceDailyReader()
+          .getDailyDTOs(symbol, startDate: startDate);
     } catch (e) {
       return [];
     }
