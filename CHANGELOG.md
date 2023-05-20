@@ -43,3 +43,6 @@ Fix path dependency error
 
 ## 1.0.6
 Update versions of the dependencies
+
+# 1.0.7
+Added date to timestamp

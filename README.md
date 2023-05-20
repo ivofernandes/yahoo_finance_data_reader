@@ -17,7 +17,7 @@ Get daily data from yahoo finance for the entire dataframe available
 
 Add the dependency to your `pubspec.yaml`:
 ```
-yahoo_finance_data_reader: ^1.0.4
+yahoo_finance_data_reader: ^1.0.7
 ```
 
 ## Usage

@@ -39,6 +39,7 @@ class YahooFinanceService {
   Future<List<YahooFinanceCandleData>> getTickerData(
     String symbol, {
     bool useCache = true,
+    DateTime? startDate,
   }) async {
     if (symbol.contains(',')) {
       final List<String> symbols = symbol.split(', ');
@@ -57,8 +58,7 @@ class YahooFinanceService {
     List<YahooFinanceCandleData> prices = [];
 
     for (final priceRaw in pricesRaw ?? []) {
-      final YahooFinanceCandleData price =
-          YahooFinanceCandleData.fromJson(priceRaw as Map<String, dynamic>);
+      final YahooFinanceCandleData price = YahooFinanceCandleData.fromJson(priceRaw as Map<String, dynamic>);
       prices.add(price);
     }
 
@@ -73,14 +73,17 @@ class YahooFinanceService {
     // If there is offline data but is not up to date
     // try to get the remaining part
     else if (!StrategyTime.isUpToDate(prices)) {
-      prices = await refreshData(prices, symbol);
+      prices = await refreshData(prices, symbol, startDate: startDate);
     }
 
     return prices;
   }
 
   Future<List<YahooFinanceCandleData>> refreshData(
-      List<YahooFinanceCandleData> pricesParam, String symbol) async {
+    List<YahooFinanceCandleData> pricesParam,
+    String symbol, {
+    DateTime? startDate,
+  }) async {
     List<YahooFinanceCandleData> prices = pricesParam;
 
     if (prices.length > 1) {
@@ -90,8 +93,7 @@ class YahooFinanceService {
       // and for joining dates, we need real instead of the real close prices
       final DateTime lastDate = prices[2].date;
 
-      final YahooFinanceResponse response =
-          await const YahooFinanceDailyReader().getDailyDTOs(
+      final YahooFinanceResponse response = await const YahooFinanceDailyReader().getDailyDTOs(
         symbol,
         startDate: lastDate,
       );
@@ -100,8 +102,7 @@ class YahooFinanceService {
       if (nextPrices != <YahooFinanceCandleData>[]) {
         prices = JoinPrices.joinPrices(prices, nextPrices);
 
-        final List<dynamic> jsonList =
-            YahooFinanceResponse(candlesData: prices).toCandlesJson();
+        final List<dynamic> jsonList = YahooFinanceResponse(candlesData: prices).toCandlesJson();
         // Cache data after join locally
         unawaited(YahooFinanceDAO().saveDailyData(symbol, jsonList));
         return prices;
@@ -109,19 +110,23 @@ class YahooFinanceService {
     }
 
     // If was not possible to refresh, get all data from yahoo finance
-    return getAllDataFromYahooFinance(symbol);
+    return getAllDataFromYahooFinance(
+      symbol,
+      startDate: startDate,
+    );
   }
 
   /// Gets all data from yahoo finance
   Future<List<YahooFinanceCandleData>> getAllDataFromYahooFinance(
     String symbol, {
     bool useCache = true,
+    DateTime? startDate,
   }) async {
     YahooFinanceResponse response = YahooFinanceResponse();
 
     // Get data from yahoo finance
     try {
-      response = await const YahooFinanceDailyReader().getDailyDTOs(symbol);
+      response = await const YahooFinanceDailyReader().getDailyDTOs(symbol, startDate: startDate);
     } catch (e) {
       return [];
     }
