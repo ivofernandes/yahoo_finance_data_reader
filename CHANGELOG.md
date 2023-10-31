@@ -46,3 +46,6 @@ Update versions of the dependencies
 
 # 1.0.7
 Added date to timestamp
+
+# 1.0.8
+Adjust prices using proportion between adj close and close

@@ -35,20 +35,37 @@ class YahooFinanceCandleData {
     this.volume = 0,
   });
 
-  factory YahooFinanceCandleData.fromJson(Map<String, dynamic> json) =>
-      YahooFinanceCandleData(
-        date: DateTime.fromMillisecondsSinceEpoch((json['date'] as int) * 1000),
-        open: double.parse(json['open'].toString()),
-        high: double.parse(json['high'].toString()),
-        low: double.parse(json['low'].toString()),
-        close: double.parse(json['close'].toString()),
-        adjClose: double.parse(json['adjClose'].toString()),
-        volume: int.parse(json['volume'].toString()),
-      );
+  factory YahooFinanceCandleData.fromJson(
+    Map<String, dynamic> json, {
+    bool adjust = false,
+  }) {
+    double adjClose = double.parse(json['adjClose'].toString());
+    double close = double.parse(json['close'].toString());
+    double open = double.parse(json['open'].toString());
+    double low = double.parse(json['low'].toString());
+    double high = double.parse(json['high'].toString());
+
+    if (adjust) {
+      final double proportion = adjClose / close;
+      close = close * proportion;
+      open = open * proportion;
+      low = low * proportion;
+      high = high * proportion;
+    }
+
+    return YahooFinanceCandleData(
+      date: DateTime.fromMillisecondsSinceEpoch((json['date'] as int) * 1000),
+      open: open,
+      high: high,
+      low: low,
+      close: close,
+      adjClose: adjClose,
+      volume: int.parse(json['volume'].toString()),
+    );
+  }
 
   /// Create a list of YahooFinanceCandleData based in a json array
-  static List<YahooFinanceCandleData> fromJsonList(
-      List<Map<String, dynamic>> jsonList) {
+  static List<YahooFinanceCandleData> fromJsonList(List<Map<String, dynamic>> jsonList) {
     final List<YahooFinanceCandleData> result = [];
 
     for (final Map<String, dynamic> jsonObject in jsonList) {
@@ -69,8 +86,7 @@ class YahooFinanceCandleData {
       };
 
   @override
-  String toString() =>
-      'YahooFinanceCandleData{date: $date, adjClose: $adjClose, open: $open, '
+  String toString() => 'YahooFinanceCandleData{date: $date, adjClose: $adjClose, open: $open, '
       'close: $close, high: $high, low: $low, volume: $volume}';
 
   YahooFinanceCandleData copyWith({

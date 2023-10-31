@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:yahoo_finance_data_reader/yahoo_finance_data_reader.dart';
 
@@ -73,8 +72,7 @@ class _BottomSelectionWidgetState extends State<BottomSelectionWidget> {
 
   void _onItemSelected(int index) {
     setState(() {
-      _pageController.animateToPage(index,
-          duration: const Duration(milliseconds: 200), curve: Curves.easeOut);
+      _pageController.animateToPage(index, duration: const Duration(milliseconds: 200), curve: Curves.easeOut);
       _selectedIndex = index;
     });
     debugPrint(index.toString());
@@ -94,16 +92,13 @@ class _RawSearchState extends State<RawSearch> {
   @override
   Widget build(BuildContext context) {
     String ticker = 'GOOG';
-    YahooFinanceDailyReader yahooFinanceDataReader =
-        const YahooFinanceDailyReader();
+    YahooFinanceDailyReader yahooFinanceDataReader = const YahooFinanceDailyReader();
 
-    Future<Map<String, dynamic>> future =
-        yahooFinanceDataReader.getDailyData(ticker);
+    Future<Map<String, dynamic>> future = yahooFinanceDataReader.getDailyData(ticker);
 
     return FutureBuilder(
       future: future,
-      builder:
-          (BuildContext context, AsyncSnapshot<Map<String, dynamic>> snapshot) {
+      builder: (BuildContext context, AsyncSnapshot<Map<String, dynamic>> snapshot) {
         if (snapshot.connectionState == ConnectionState.done) {
           if (snapshot.data == null) {
             return const Text('No data');
@@ -174,8 +169,7 @@ class _DTOSearchState extends State<DTOSearch> {
         Expanded(
           child: FutureBuilder(
             future: future,
-            builder: (BuildContext context,
-                AsyncSnapshot<YahooFinanceResponse> snapshot) {
+            builder: (BuildContext context, AsyncSnapshot<YahooFinanceResponse> snapshot) {
               if (snapshot.connectionState == ConnectionState.done) {
                 if (snapshot.data == null) {
                   return const Text('No data');
@@ -185,8 +179,7 @@ class _DTOSearchState extends State<DTOSearch> {
                 return ListView.builder(
                     itemCount: response.candlesData.length,
                     itemBuilder: (BuildContext context, int index) {
-                      YahooFinanceCandleData candle =
-                          response.candlesData[index];
+                      YahooFinanceCandleData candle = response.candlesData[index];
 
                       return _CandleCard(candle);
                     });
@@ -250,6 +243,13 @@ class _CandleCard extends StatelessWidget {
                 Text('high: ${candle.high.toStringAsFixed(2)}'),
               ],
             ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                Text('volume: ${candle.volume}'),
+                Text('adjclose: ${candle.adjClose.toStringAsFixed(2)}'),
+              ],
+            ),
           ],
         ),
       ),
@@ -261,8 +261,7 @@ class YahooFinanceServiceWidget extends StatefulWidget {
   const YahooFinanceServiceWidget({super.key});
 
   @override
-  State<YahooFinanceServiceWidget> createState() =>
-      _YahooFinanceServiceWidgetState();
+  State<YahooFinanceServiceWidget> createState() => _YahooFinanceServiceWidgetState();
 }
 
 class _YahooFinanceServiceWidgetState extends State<YahooFinanceServiceWidget> {
@@ -272,6 +271,7 @@ class _YahooFinanceServiceWidgetState extends State<YahooFinanceServiceWidget> {
   List<YahooFinanceCandleData> pricesList = [];
   List? cachedPrices;
   bool loading = true;
+  bool adjust = true;
   DateTime? startDate;
 
   @override
@@ -285,13 +285,12 @@ class _YahooFinanceServiceWidgetState extends State<YahooFinanceServiceWidget> {
     setState(() {});
 
     // Get response for the first time
-    pricesList = await YahooFinanceService()
-        .getTickerData(controller.text, startDate: startDate);
-
-    // Check if the cache was created
-    cachedPrices = await YahooFinanceDAO().getAllDailyData(
+    pricesList = await YahooFinanceService().getTickerData(
       controller.text,
+      startDate: startDate,
+      adjust: adjust,
     );
+
     loading = false;
     setState(() {});
   }
@@ -362,23 +361,30 @@ class _YahooFinanceServiceWidgetState extends State<YahooFinanceServiceWidget> {
                             : 'No Date Selected',
                       ),
                       MaterialButton(
-                        onPressed: () {
-                          DatePicker.showDatePicker(
-                            context,
-                            showTitleActions: true,
-                            onConfirm: (date) {
-                              setState(() {
-                                startDate = date;
-                              });
-                            },
+                        onPressed: () async {
+                          DateTime? picked = await showDatePicker(
+                            context: context,
+                            initialDate: startDate ?? DateTime.now(),
+                            firstDate: DateTime(2000),
+                            lastDate: DateTime(2101),
                           );
+                          if (picked != null && picked != startDate) {
+                            setState(() {
+                              startDate = picked;
+                            });
+                          }
                         },
-                        child: Text(
+                        child: const Text(
                           'Select Date',
                           style: TextStyle(color: Colors.blue),
                         ),
                       ),
                     ],
+                  ),
+                  CheckboxListTile(
+                    title: const Text('Adjust'),
+                    value: adjust,
+                    onChanged: (value) => setState(() => adjust = value ?? false),
                   ),
                   const Text('Ticker from yahoo finance:'),
                   TextField(
@@ -389,26 +395,24 @@ class _YahooFinanceServiceWidgetState extends State<YahooFinanceServiceWidget> {
                     children: [
                       MaterialButton(
                         color: Theme.of(context).primaryColor,
-                        onPressed: () => load(),
+                        onPressed: load,
                         child: const Text('Load'),
                       ),
                       MaterialButton(
                         color: Theme.of(context).colorScheme.error,
-                        onPressed: () => deleteCache(),
+                        onPressed: deleteCache,
                         child: const Text('Delete Cache'),
                       ),
                       MaterialButton(
                         color: Theme.of(context).colorScheme.onPrimary,
-                        onPressed: () => refresh(),
+                        onPressed: refresh,
                         child: const Text('Refresh'),
                       ),
                     ],
                   ),
                   Text('Prices in the service ${pricesList.length}'),
                   Text('Prices in the cache ${cachedPrices?.length}'),
-                  pricesList.isEmpty
-                      ? const Text('No data')
-                      : const SizedBox.shrink()
+                  pricesList.isEmpty ? const Text('No data') : const SizedBox.shrink()
                 ],
               ),
             ),

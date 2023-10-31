@@ -19,8 +19,11 @@ class YahooFinanceDailyReader {
   });
 
   /// getDailyData but transform the data into a YahooFinanceData list
-  Future<YahooFinanceResponse> getDailyDTOs(String ticker,
-      {DateTime? startDate}) async {
+  Future<YahooFinanceResponse> getDailyDTOs(
+    String ticker, {
+    DateTime? startDate,
+    bool adjust = false,
+  }) async {
     int? startTimestamp;
     if (startDate != null) {
       startTimestamp = (startDate.millisecondsSinceEpoch / 1000).floor();
@@ -31,7 +34,10 @@ class YahooFinanceDailyReader {
       startTimestamp: startTimestamp,
     );
 
-    return YahooFinanceResponse.fromJson(dailyData);
+    return YahooFinanceResponse.fromJson(
+      dailyData,
+      adjust: adjust,
+    );
   }
 
   /// Python like get allDailyData, inspired on python package yfinance
@@ -40,16 +46,14 @@ class YahooFinanceDailyReader {
     String ticker, {
     int? startTimestamp = -2208994789,
   }) async {
-    final startTimestampReady = startTimestamp ?? -2208994789;
-    final tickerUpperCase = ticker.toUpperCase();
+    final int startTimestampReady = startTimestamp ?? -2208994789;
+    final String tickerUpperCase = ticker.toUpperCase();
 
-    final String now =
-        (DateTime.now().millisecondsSinceEpoch / 1000).round().toString();
+    final String now = (DateTime.now().millisecondsSinceEpoch / 1000).round().toString();
 
     final String params =
         'period1=$startTimestampReady&period2=$now&interval=1d&includePrePost=False&events=div,splits';
-    final String url =
-        'https://query2.finance.yahoo.com/v8/finance/chart/$tickerUpperCase?$params';
+    final String url = 'https://query2.finance.yahoo.com/v8/finance/chart/$tickerUpperCase?$params';
 
     final Dio dio = Dio();
     dio.options.connectTimeout = Duration(milliseconds: timeout.inMilliseconds);
@@ -80,8 +84,7 @@ class YahooFinanceDailyReader {
   }
 
   /// create the isolate to process the response
-  Future<Map<String, dynamic>> _computeResponse(String value) =>
-      compute(_processResponse, value);
+  Future<Map<String, dynamic>> _computeResponse(String value) => compute(_processResponse, value);
 
   /// Process to get the daily data from the html response
   Map<String, dynamic> _processResponse(String body) {
@@ -90,8 +93,7 @@ class YahooFinanceDailyReader {
 
     final chart = json['chart'] as Map<String, dynamic>;
     final result = chart['result'] as List<dynamic>;
-    final Map<String, dynamic>? historicalPrice =
-        result.first as Map<String, dynamic>?;
+    final Map<String, dynamic>? historicalPrice = result.first as Map<String, dynamic>?;
     return historicalPrice ?? {};
   }
 }

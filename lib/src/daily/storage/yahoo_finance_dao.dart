@@ -16,8 +16,7 @@ class YahooFinanceDAO with SembastDatabase {
     final store = intMapStoreFactory.store(storeDaily);
 
     final DatabaseClient database = await getDatabase();
-    final data = await store.find(database,
-        finder: Finder(filter: Filter.equals('ticker', ticker)));
+    final data = await store.find(database, finder: Finder(filter: Filter.equals('ticker', ticker)));
 
     List<dynamic>? resultsList = [];
 
@@ -34,8 +33,7 @@ class YahooFinanceDAO with SembastDatabase {
     final store = intMapStoreFactory.store(storeDaily);
     final DatabaseClient database = await getDatabase();
 
-    await store.delete(database,
-        finder: Finder(filter: Filter.equals('ticker', ticker)));
+    await store.delete(database, finder: Finder(filter: Filter.equals('ticker', ticker)));
 
     await store.add(database, {'ticker': ticker, 'data': data});
   }
@@ -44,8 +42,7 @@ class YahooFinanceDAO with SembastDatabase {
     final store = intMapStoreFactory.store(storeDaily);
     final DatabaseClient database = await getDatabase();
 
-    final int deletedRecords = await store.delete(database,
-        finder: Finder(filter: Filter.equals('ticker', ticker)));
+    final int deletedRecords = await store.delete(database, finder: Finder(filter: Filter.equals('ticker', ticker)));
 
     return deletedRecords;
   }
