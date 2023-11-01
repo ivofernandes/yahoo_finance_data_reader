@@ -16,9 +16,11 @@ class YahooFinanceResponse {
 
     final List<dynamic> timestamps = json['timestamp'] as List;
 
-    final Map<String, dynamic> indicators = json['indicators'] as Map<String, dynamic>;
+    final Map<String, dynamic> indicators =
+        json['indicators'] as Map<String, dynamic>;
     final List<dynamic> quotes = indicators['quote'] as List<dynamic>;
-    final Map<String, dynamic> firstQuote = quotes.first as Map<String, dynamic>;
+    final Map<String, dynamic> firstQuote =
+        quotes.first as Map<String, dynamic>;
 
     final List<dynamic> opens = firstQuote['open'] as List;
     final List<dynamic> closes = firstQuote['close'] as List;
@@ -27,13 +29,15 @@ class YahooFinanceResponse {
     final List<dynamic> volumes = firstQuote['volume'] as List;
 
     final List<dynamic> adjClosesList = indicators['adjclose'] as List<dynamic>;
-    final Map<String, dynamic> adjClosesList2 = adjClosesList.first as Map<String, dynamic>;
+    final Map<String, dynamic> adjClosesList2 =
+        adjClosesList.first as Map<String, dynamic>;
 
     final List<dynamic> adjCloses = adjClosesList2['adjclose'] as List<dynamic>;
 
     for (int i = 0; i < timestamps.length; i++) {
       final int timestamp = timestamps[i] as int;
-      final DateTime date = DateTime.fromMillisecondsSinceEpoch(timestamp * 1000);
+      final DateTime date =
+          DateTime.fromMillisecondsSinceEpoch(timestamp * 1000);
 
       // Ignore null values
       if (closes[i] == null ||

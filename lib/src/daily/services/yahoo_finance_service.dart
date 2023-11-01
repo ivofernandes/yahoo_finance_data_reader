@@ -105,7 +105,8 @@ class YahooFinanceService {
       // and for joining dates, we need real instead of the real close prices
       final DateTime lastDate = prices[2].date;
 
-      final YahooFinanceResponse response = await const YahooFinanceDailyReader().getDailyDTOs(
+      final YahooFinanceResponse response =
+          await const YahooFinanceDailyReader().getDailyDTOs(
         symbol,
         startDate: lastDate,
         adjust: adjust,
@@ -115,7 +116,8 @@ class YahooFinanceService {
       if (nextPrices != <YahooFinanceCandleData>[]) {
         prices = JoinPrices.joinPrices(prices, nextPrices);
 
-        final List<dynamic> jsonList = YahooFinanceResponse(candlesData: prices).toCandlesJson();
+        final List<dynamic> jsonList =
+            YahooFinanceResponse(candlesData: prices).toCandlesJson();
         // Cache data after join locally
         unawaited(YahooFinanceDAO().saveDailyData(symbol, jsonList));
         return prices;
@@ -140,7 +142,8 @@ class YahooFinanceService {
 
     // Get data from yahoo finance
     try {
-      response = await const YahooFinanceDailyReader().getDailyDTOs(symbol, startDate: startDate, adjust: adjust);
+      response = await const YahooFinanceDailyReader()
+          .getDailyDTOs(symbol, startDate: startDate, adjust: adjust);
     } catch (e) {
       return [];
     }

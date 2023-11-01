@@ -65,7 +65,8 @@ class YahooFinanceCandleData {
   }
 
   /// Create a list of YahooFinanceCandleData based in a json array
-  static List<YahooFinanceCandleData> fromJsonList(List<Map<String, dynamic>> jsonList) {
+  static List<YahooFinanceCandleData> fromJsonList(
+      List<Map<String, dynamic>> jsonList) {
     final List<YahooFinanceCandleData> result = [];
 
     for (final Map<String, dynamic> jsonObject in jsonList) {
@@ -86,7 +87,8 @@ class YahooFinanceCandleData {
       };
 
   @override
-  String toString() => 'YahooFinanceCandleData{date: $date, adjClose: $adjClose, open: $open, '
+  String toString() =>
+      'YahooFinanceCandleData{date: $date, adjClose: $adjClose, open: $open, '
       'close: $close, high: $high, low: $low, volume: $volume}';
 
   YahooFinanceCandleData copyWith({
