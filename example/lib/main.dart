@@ -72,7 +72,8 @@ class _BottomSelectionWidgetState extends State<BottomSelectionWidget> {
 
   void _onItemSelected(int index) {
     setState(() {
-      _pageController.animateToPage(index, duration: const Duration(milliseconds: 200), curve: Curves.easeOut);
+      _pageController.animateToPage(index,
+          duration: const Duration(milliseconds: 200), curve: Curves.easeOut);
       _selectedIndex = index;
     });
     debugPrint(index.toString());
@@ -92,13 +93,16 @@ class _RawSearchState extends State<RawSearch> {
   @override
   Widget build(BuildContext context) {
     String ticker = 'GOOG';
-    YahooFinanceDailyReader yahooFinanceDataReader = const YahooFinanceDailyReader();
+    YahooFinanceDailyReader yahooFinanceDataReader =
+        const YahooFinanceDailyReader();
 
-    Future<Map<String, dynamic>> future = yahooFinanceDataReader.getDailyData(ticker);
+    Future<Map<String, dynamic>> future =
+        yahooFinanceDataReader.getDailyData(ticker);
 
     return FutureBuilder(
       future: future,
-      builder: (BuildContext context, AsyncSnapshot<Map<String, dynamic>> snapshot) {
+      builder:
+          (BuildContext context, AsyncSnapshot<Map<String, dynamic>> snapshot) {
         if (snapshot.connectionState == ConnectionState.done) {
           if (snapshot.data == null) {
             return const Text('No data');
@@ -169,7 +173,8 @@ class _DTOSearchState extends State<DTOSearch> {
         Expanded(
           child: FutureBuilder(
             future: future,
-            builder: (BuildContext context, AsyncSnapshot<YahooFinanceResponse> snapshot) {
+            builder: (BuildContext context,
+                AsyncSnapshot<YahooFinanceResponse> snapshot) {
               if (snapshot.connectionState == ConnectionState.done) {
                 if (snapshot.data == null) {
                   return const Text('No data');
@@ -179,7 +184,8 @@ class _DTOSearchState extends State<DTOSearch> {
                 return ListView.builder(
                     itemCount: response.candlesData.length,
                     itemBuilder: (BuildContext context, int index) {
-                      YahooFinanceCandleData candle = response.candlesData[index];
+                      YahooFinanceCandleData candle =
+                          response.candlesData[index];
 
                       return _CandleCard(candle);
                     });
@@ -261,7 +267,8 @@ class YahooFinanceServiceWidget extends StatefulWidget {
   const YahooFinanceServiceWidget({super.key});
 
   @override
-  State<YahooFinanceServiceWidget> createState() => _YahooFinanceServiceWidgetState();
+  State<YahooFinanceServiceWidget> createState() =>
+      _YahooFinanceServiceWidgetState();
 }
 
 class _YahooFinanceServiceWidgetState extends State<YahooFinanceServiceWidget> {
@@ -389,7 +396,8 @@ class _YahooFinanceServiceWidgetState extends State<YahooFinanceServiceWidget> {
                   CheckboxListTile(
                     title: const Text('Adjust'),
                     value: adjust,
-                    onChanged: (value) => setState(() => adjust = value ?? false),
+                    onChanged: (value) =>
+                        setState(() => adjust = value ?? false),
                   ),
                   const Text('Ticker from yahoo finance:'),
                   TextField(
@@ -426,7 +434,9 @@ class _YahooFinanceServiceWidgetState extends State<YahooFinanceServiceWidget> {
                   ),
                   Text('Prices in the service ${pricesList.length}'),
                   Text('Prices in the cache ${cachedPrices?.length}'),
-                  pricesList.isEmpty ? const Text('No data') : const SizedBox.shrink()
+                  pricesList.isEmpty
+                      ? const Text('No data')
+                      : const SizedBox.shrink()
                 ],
               ),
             ),

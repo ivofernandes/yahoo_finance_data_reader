@@ -5,7 +5,8 @@ import 'package:yahoo_finance_data_reader/yahoo_finance_data_reader.dart';
 class StrategyTime {
   /// Check if a prices data stills valid
   /// This is done in json data
-  static bool isUpToDate(List<YahooFinanceCandleData> prices, DateTime? startDate) {
+  static bool isUpToDate(
+      List<YahooFinanceCandleData> prices, DateTime? startDate) {
     DateTime now = DateTime.now();
 
     // Go to the last working day
