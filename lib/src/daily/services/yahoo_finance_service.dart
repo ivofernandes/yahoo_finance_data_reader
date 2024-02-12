@@ -63,7 +63,11 @@ class YahooFinanceService {
         priceRaw as Map<String, dynamic>,
         adjust: adjust,
       );
-      prices.add(price);
+      final bool isAfterStartDate = startDate == null || price.date.isAfter(startDate);
+
+      if (isAfterStartDate) {
+        prices.add(price);
+      }
     }
 
     // If have no cached historical data
@@ -78,7 +82,7 @@ class YahooFinanceService {
 
     // If there is offline data but is not up to date
     // try to get the remaining part
-    else if (!StrategyTime.isUpToDate(prices)) {
+    else if (!StrategyTime.isUpToDate(prices, startDate)) {
       prices = await refreshData(
         prices,
         symbol,
@@ -105,8 +109,7 @@ class YahooFinanceService {
       // and for joining dates, we need real instead of the real close prices
       final DateTime lastDate = prices[2].date;
 
-      final YahooFinanceResponse response =
-          await const YahooFinanceDailyReader().getDailyDTOs(
+      final YahooFinanceResponse response = await const YahooFinanceDailyReader().getDailyDTOs(
         symbol,
         startDate: lastDate,
         adjust: adjust,
@@ -116,8 +119,7 @@ class YahooFinanceService {
       if (nextPrices != <YahooFinanceCandleData>[]) {
         prices = JoinPrices.joinPrices(prices, nextPrices);
 
-        final List<dynamic> jsonList =
-            YahooFinanceResponse(candlesData: prices).toCandlesJson();
+        final List<dynamic> jsonList = YahooFinanceResponse(candlesData: prices).toCandlesJson();
         // Cache data after join locally
         unawaited(YahooFinanceDAO().saveDailyData(symbol, jsonList));
         return prices;
@@ -142,8 +144,7 @@ class YahooFinanceService {
 
     // Get data from yahoo finance
     try {
-      response = await const YahooFinanceDailyReader()
-          .getDailyDTOs(symbol, startDate: startDate, adjust: adjust);
+      response = await const YahooFinanceDailyReader().getDailyDTOs(symbol, adjust: adjust);
     } catch (e) {
       return [];
     }
@@ -155,6 +156,11 @@ class YahooFinanceService {
 
       if (useCache) {
         unawaited(YahooFinanceDAO().saveDailyData(symbol, jsonList));
+      }
+
+      // Remove all candles before start date
+      if (startDate != null) {
+        response.candlesData.removeWhere((candle) => candle.date.isBefore(startDate));
       }
 
       return response.candlesData;

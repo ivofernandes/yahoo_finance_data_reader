@@ -72,8 +72,7 @@ class _BottomSelectionWidgetState extends State<BottomSelectionWidget> {
 
   void _onItemSelected(int index) {
     setState(() {
-      _pageController.animateToPage(index,
-          duration: const Duration(milliseconds: 200), curve: Curves.easeOut);
+      _pageController.animateToPage(index, duration: const Duration(milliseconds: 200), curve: Curves.easeOut);
       _selectedIndex = index;
     });
     debugPrint(index.toString());
@@ -93,16 +92,13 @@ class _RawSearchState extends State<RawSearch> {
   @override
   Widget build(BuildContext context) {
     String ticker = 'GOOG';
-    YahooFinanceDailyReader yahooFinanceDataReader =
-        const YahooFinanceDailyReader();
+    YahooFinanceDailyReader yahooFinanceDataReader = const YahooFinanceDailyReader();
 
-    Future<Map<String, dynamic>> future =
-        yahooFinanceDataReader.getDailyData(ticker);
+    Future<Map<String, dynamic>> future = yahooFinanceDataReader.getDailyData(ticker);
 
     return FutureBuilder(
       future: future,
-      builder:
-          (BuildContext context, AsyncSnapshot<Map<String, dynamic>> snapshot) {
+      builder: (BuildContext context, AsyncSnapshot<Map<String, dynamic>> snapshot) {
         if (snapshot.connectionState == ConnectionState.done) {
           if (snapshot.data == null) {
             return const Text('No data');
@@ -173,8 +169,7 @@ class _DTOSearchState extends State<DTOSearch> {
         Expanded(
           child: FutureBuilder(
             future: future,
-            builder: (BuildContext context,
-                AsyncSnapshot<YahooFinanceResponse> snapshot) {
+            builder: (BuildContext context, AsyncSnapshot<YahooFinanceResponse> snapshot) {
               if (snapshot.connectionState == ConnectionState.done) {
                 if (snapshot.data == null) {
                   return const Text('No data');
@@ -184,8 +179,7 @@ class _DTOSearchState extends State<DTOSearch> {
                 return ListView.builder(
                     itemCount: response.candlesData.length,
                     itemBuilder: (BuildContext context, int index) {
-                      YahooFinanceCandleData candle =
-                          response.candlesData[index];
+                      YahooFinanceCandleData candle = response.candlesData[index];
 
                       return _CandleCard(candle);
                     });
@@ -267,8 +261,7 @@ class YahooFinanceServiceWidget extends StatefulWidget {
   const YahooFinanceServiceWidget({super.key});
 
   @override
-  State<YahooFinanceServiceWidget> createState() =>
-      _YahooFinanceServiceWidgetState();
+  State<YahooFinanceServiceWidget> createState() => _YahooFinanceServiceWidgetState();
 }
 
 class _YahooFinanceServiceWidgetState extends State<YahooFinanceServiceWidget> {
@@ -333,6 +326,8 @@ class _YahooFinanceServiceWidgetState extends State<YahooFinanceServiceWidget> {
             'GOOG',
             'ES=F, GC=F',
             'GOOG, AAPL',
+            'AAPL',
+            'AMZN',
           ];
           return Card(
             child: Container(
@@ -360,69 +355,78 @@ class _YahooFinanceServiceWidgetState extends State<YahooFinanceServiceWidget> {
                           .toList(),
                     ),
                   ),
-                  Row(
-                    children: [
-                      Text(
-                        startDate != null
-                            ? 'Selected Date: ${DateFormat('yyyy-MM-dd').format(startDate!)}'
-                            : 'No Date Selected',
-                      ),
-                      MaterialButton(
-                        onPressed: () async {
-                          DateTime? picked = await showDatePicker(
-                            context: context,
-                            initialDate: startDate ?? DateTime.now(),
-                            firstDate: DateTime(2000),
-                            lastDate: DateTime(2101),
-                          );
-                          if (picked != null && picked != startDate) {
-                            setState(() {
-                              startDate = picked;
-                            });
-                          }
-                        },
-                        child: const Text(
-                          'Select Date',
-                          style: TextStyle(color: Colors.blue),
+                  SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    child: Row(
+                      children: [
+                        Text(
+                          startDate != null
+                              ? 'Selected Date:\n ${DateFormat('yyyy-MM-dd').format(startDate!)}'
+                              : 'No Date Selected',
                         ),
-                      ),
-                    ],
+                        MaterialButton(
+                          onPressed: () async {
+                            DateTime? picked = await showDatePicker(
+                              context: context,
+                              initialDate: startDate ?? DateTime.now(),
+                              firstDate: DateTime(2000),
+                              lastDate: DateTime(2101),
+                            );
+                            if (picked != null && picked != startDate) {
+                              setState(() {
+                                startDate = picked;
+                              });
+                            }
+                          },
+                          child: const Text(
+                            'Select Date',
+                            style: TextStyle(color: Colors.blue),
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                   CheckboxListTile(
                     title: const Text('Adjust'),
                     value: adjust,
-                    onChanged: (value) =>
-                        setState(() => adjust = value ?? false),
+                    onChanged: (value) => setState(() => adjust = value ?? false),
                   ),
                   const Text('Ticker from yahoo finance:'),
                   TextField(
                     controller: controller,
                   ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: [
-                      MaterialButton(
-                        color: Theme.of(context).primaryColor,
-                        onPressed: load,
-                        child: const Text('Load'),
-                      ),
-                      MaterialButton(
-                        color: Theme.of(context).colorScheme.error,
-                        onPressed: deleteCache,
-                        child: const Text('Delete Cache'),
-                      ),
-                      MaterialButton(
-                        color: Theme.of(context).colorScheme.onPrimary,
-                        onPressed: refresh,
-                        child: const Text('Refresh'),
-                      ),
-                    ],
+                  SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        MaterialButton(
+                          color: Theme.of(context).primaryColor,
+                          onPressed: load,
+                          child: const Text('Load'),
+                        ),
+                        const SizedBox(
+                          width: 10,
+                        ),
+                        MaterialButton(
+                          color: Theme.of(context).colorScheme.error,
+                          onPressed: deleteCache,
+                          child: const Text('Delete Cache'),
+                        ),
+                        const SizedBox(
+                          width: 10,
+                        ),
+                        MaterialButton(
+                          color: Theme.of(context).colorScheme.onPrimary,
+                          onPressed: refresh,
+                          child: const Text('Refresh'),
+                        ),
+                      ],
+                    ),
                   ),
                   Text('Prices in the service ${pricesList.length}'),
                   Text('Prices in the cache ${cachedPrices?.length}'),
-                  pricesList.isEmpty
-                      ? const Text('No data')
-                      : const SizedBox.shrink()
+                  pricesList.isEmpty ? const Text('No data') : const SizedBox.shrink()
                 ],
               ),
             ),

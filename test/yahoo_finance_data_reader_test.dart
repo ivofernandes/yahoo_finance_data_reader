@@ -75,8 +75,7 @@ void main() {
   test('Test mix', () async {
     final yahooFinance = YahooFinanceService();
 
-    final List<YahooFinanceCandleData> prices =
-        await yahooFinance.getTickerData(
+    final List<YahooFinanceCandleData> prices = await yahooFinance.getTickerData(
       'ES=F, GC=F',
       useCache: false,
     );
