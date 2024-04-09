@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:yahoo_finance_data_reader/src/daily/aux/join_prices.dart';
 import 'package:yahoo_finance_data_reader/src/daily/aux/strategy_time.dart';
 import 'package:yahoo_finance_data_reader/src/daily/mixer/average_mixer.dart';
+import 'package:yahoo_finance_data_reader/src/daily/mixer/weighted_average_mixer.dart';
 import 'package:yahoo_finance_data_reader/src/daily/model/yahoo_finance_candle_data.dart';
 import 'package:yahoo_finance_data_reader/src/daily/model/yahoo_finance_response.dart';
 import 'package:yahoo_finance_data_reader/src/daily/services/yahoo_finance_daily_reader.dart';
@@ -16,6 +17,42 @@ class YahooFinanceService {
   factory YahooFinanceService() => _singleton;
 
   YahooFinanceService._internal();
+
+  /// Fetches and mixes ticker data based on the weighted symbols
+  Future<List<YahooFinanceCandleData>> getWeightedTickerData(
+    String weightedSymbols, {
+    bool useCache = true,
+  }) async {
+    final Map<String, double> weightsAndSymbols = _parseWeightedSymbols(weightedSymbols);
+    final Map<List<YahooFinanceCandleData>, double> weightedPrices = {};
+
+    for (final String symbol in weightsAndSymbols.keys) {
+      final double weight = weightsAndSymbols[symbol]!;
+      final List<YahooFinanceCandleData> prices = await getTickerData(
+        symbol,
+        useCache: useCache,
+      );
+      weightedPrices[prices] = weight;
+    }
+
+    return WeightedAverageMixer.mix(weightedPrices);
+  }
+
+  /// Parses the input into a map from symbol to it's weight
+  Map<String, double> _parseWeightedSymbols(String weightedSymbols) {
+    final Map<String, double> weightsAndSymbols = {};
+    final symbolParts = weightedSymbols.split(',');
+
+    for (int i = 0; i < symbolParts.length; i++) {
+      final part = symbolParts[i].trim();
+      final symbol = part.split('-')[0];
+      final weight = double.parse(part.split('-')[1]);
+
+      weightsAndSymbols[symbol] = weight;
+    }
+
+    return weightsAndSymbols;
+  }
 
   Future<List<YahooFinanceCandleData>> getTickerDataList(
     List<String> symbols, {
@@ -42,7 +79,12 @@ class YahooFinanceService {
     DateTime? startDate,
     bool adjust = false,
   }) async {
-    if (symbol.contains(',')) {
+    if (symbol.contains('-')) {
+      return getWeightedTickerData(
+        symbol,
+        useCache: useCache,
+      );
+    } else if (symbol.contains(',')) {
       final List<String> symbols = symbol.split(', ');
       return getTickerDataList(
         symbols,
@@ -63,8 +105,7 @@ class YahooFinanceService {
         priceRaw as Map<String, dynamic>,
         adjust: adjust,
       );
-      final bool isAfterStartDate =
-          startDate == null || price.date.isAfter(startDate);
+      final bool isAfterStartDate = startDate == null || price.date.isAfter(startDate);
 
       if (isAfterStartDate) {
         prices.add(price);
@@ -110,8 +151,7 @@ class YahooFinanceService {
       // and for joining dates, we need real instead of the real close prices
       final DateTime lastDate = prices[2].date;
 
-      final YahooFinanceResponse response =
-          await const YahooFinanceDailyReader().getDailyDTOs(
+      final YahooFinanceResponse response = await const YahooFinanceDailyReader().getDailyDTOs(
         symbol,
         startDate: lastDate,
         adjust: adjust,
@@ -121,8 +161,7 @@ class YahooFinanceService {
       if (nextPrices != <YahooFinanceCandleData>[]) {
         prices = JoinPrices.joinPrices(prices, nextPrices);
 
-        final List<dynamic> jsonList =
-            YahooFinanceResponse(candlesData: prices).toCandlesJson();
+        final List<dynamic> jsonList = YahooFinanceResponse(candlesData: prices).toCandlesJson();
         // Cache data after join locally
         unawaited(YahooFinanceDAO().saveDailyData(symbol, jsonList));
         return prices;
@@ -147,8 +186,7 @@ class YahooFinanceService {
 
     // Get data from yahoo finance
     try {
-      response = await const YahooFinanceDailyReader()
-          .getDailyDTOs(symbol, adjust: adjust);
+      response = await const YahooFinanceDailyReader().getDailyDTOs(symbol, adjust: adjust);
     } catch (e) {
       return [];
     }
@@ -164,8 +202,7 @@ class YahooFinanceService {
 
       // Remove all candles before start date
       if (startDate != null) {
-        response.candlesData
-            .removeWhere((candle) => candle.date.isBefore(startDate));
+        response.candlesData.removeWhere((candle) => candle.date.isBefore(startDate));
       }
 
       return response.candlesData;
