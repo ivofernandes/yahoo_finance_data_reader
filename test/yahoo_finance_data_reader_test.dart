@@ -75,13 +75,29 @@ void main() {
   test('Test mix', () async {
     final yahooFinance = YahooFinanceService();
 
-    final List<YahooFinanceCandleData> prices =
-        await yahooFinance.getTickerData(
+    final List<YahooFinanceCandleData> prices = await yahooFinance.getTickerData(
       'ES=F, GC=F',
       useCache: false,
     );
 
     assert(prices.isNotEmpty);
+  });
+
+  test('Test weighted mix', () async {
+    final yahooFinance = YahooFinanceService();
+
+    final List<YahooFinanceCandleData> pricesAverageWeightedMixed = await yahooFinance.getTickerData(
+      'ES=F-0.5, GC=F-0.5',
+      useCache: false,
+    );
+
+    final List<YahooFinanceCandleData> pricesAverageMixed = await yahooFinance.getTickerData(
+      'ES=F, GC=F',
+      useCache: false,
+    );
+
+    assert(pricesAverageMixed.isNotEmpty);
+    assert(pricesAverageWeightedMixed.isNotEmpty);
   });
 }
 
