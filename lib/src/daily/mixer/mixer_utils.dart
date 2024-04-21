@@ -49,4 +49,31 @@ abstract class MixerUtils {
 
     return maxValue;
   }
+
+  // Utility method to find a candle by date with optimization
+  static YahooFinanceCandleData findCandleByDate(
+      List<YahooFinanceCandleData> prices, DateTime targetDate, int hintIndex) {
+    if (hintIndex >= 0 && hintIndex < prices.length) {
+      if (prices[hintIndex].date == targetDate) {
+        return prices[hintIndex];
+      } else if (prices[hintIndex].date.compareTo(targetDate) < 0) {
+        // If the current date is before the target, search forward
+        for (int j = hintIndex; j < prices.length; j++) {
+          if (prices[j].date == targetDate) {
+            return prices[j];
+          }
+        }
+      } else {
+        // If the current date is after the target, search backward
+        for (int j = hintIndex; j >= 0; j--) {
+          if (prices[j].date == targetDate) {
+            return prices[j];
+          }
+        }
+      }
+    }
+
+    // Default to a zero-data candle if not found
+    return YahooFinanceCandleData(open: 0, close: 0, adjClose: 0, high: 0, low: 0, volume: 0, date: targetDate);
+  }
 }

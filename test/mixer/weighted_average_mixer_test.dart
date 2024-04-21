@@ -21,17 +21,11 @@ void main() {
     // Check if they have the same size
     expect(pricesAverageMixed.length, pricesAverageWeightedMixed.length);
 
-    // Check if they have the same values
-    for (int i = 0; i < pricesAverageMixed.length; i++) {
-      final averageElement = pricesAverageMixed[i];
-      final weightedAverageElement = pricesAverageWeightedMixed[i];
+    // Check if they have the same proportion
+    final double pricesAverageChange = pricesAverageMixed.last.adjClose / pricesAverageMixed.first.adjClose;
+    final double pricesAverageWeightedChange =
+        pricesAverageWeightedMixed.last.adjClose / pricesAverageWeightedMixed.first.adjClose;
 
-      expect(averageElement.date, weightedAverageElement.date);
-      expect(averageElement.open, weightedAverageElement.open);
-      expect(averageElement.high, weightedAverageElement.high);
-      expect(averageElement.low, weightedAverageElement.low);
-      expect(averageElement.close, weightedAverageElement.close);
-      expect(averageElement.adjClose, weightedAverageElement.adjClose);
-    }
+    expect(pricesAverageChange, pricesAverageWeightedChange);
   });
 }

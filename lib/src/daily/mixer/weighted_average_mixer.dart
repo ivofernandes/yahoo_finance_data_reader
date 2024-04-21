@@ -23,12 +23,18 @@ class WeightedAverageMixer {
 
   static List<YahooFinanceCandleData> mergeWeightedPrices(
       Map<List<YahooFinanceCandleData>, double> weightedPricesList, double totalWeight, List<double> proportions) {
+    // Validate that there are as many proportions as there are price lists
+    if (weightedPricesList.length != proportions.length) {
+      throw ArgumentError('The number of price lists must match the number of proportions.');
+    }
     final int numberOfTimePoints = weightedPricesList.keys.first.length;
     final List<YahooFinanceCandleData> result = [];
     int assetIndex = 0;
+    final List<List<YahooFinanceCandleData>> pricesList = weightedPricesList.keys.toList();
+    final List<double> weights = weightedPricesList.values.toList();
 
     for (int d = 0; d < numberOfTimePoints; d++) {
-      final DateTime currentDate = weightedPricesList.keys.first[d].date;
+      final DateTime currentDate = pricesList.first[d].date;
       double sumOpen = 0;
       double sumClose = 0;
       double sumCloseAdj = 0;
@@ -36,20 +42,20 @@ class WeightedAverageMixer {
       double sumLow = 0;
       double sumVolume = 0;
 
-      weightedPricesList.forEach((prices, weight) {
-        final int currentAssetIndex = d < prices.length ? d : prices.length - 1;
-        final YahooFinanceCandleData candle = prices[currentAssetIndex];
+      for (int i = 0; i < pricesList.length; i++) {
+        final List<YahooFinanceCandleData> prices = pricesList[i];
+        final double currentWeight = weights[i] / totalWeight;
 
-        // Adjust the sums using the weight of each asset and the proportion
-        final double adjustedWeight = weight / totalWeight;
-        final double proportion = proportions[assetIndex];
-        sumOpen += (candle.open / proportion) * adjustedWeight;
-        sumClose += (candle.close / proportion) * adjustedWeight;
-        sumCloseAdj += (candle.adjClose / proportion) * adjustedWeight;
-        sumLow += (candle.low / proportion) * adjustedWeight;
-        sumHigh += (candle.high / proportion) * adjustedWeight;
-        sumVolume += (candle.volume / proportion) * adjustedWeight;
-      });
+        // Find the candle with the same date as 'currentDate'
+        final YahooFinanceCandleData currentCandle = MixerUtils.findCandleByDate(prices, currentDate, d);
+
+        sumOpen += currentCandle.open * currentWeight;
+        sumClose += currentCandle.close * currentWeight;
+        sumCloseAdj += currentCandle.adjClose * currentWeight;
+        sumHigh += currentCandle.high * currentWeight;
+        sumLow += currentCandle.low * currentWeight;
+        sumVolume += currentCandle.volume * currentWeight;
+      }
 
       result.add(YahooFinanceCandleData(
           open: sumOpen,
