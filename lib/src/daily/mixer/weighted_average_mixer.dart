@@ -1,6 +1,4 @@
-import 'dart:math';
-
-import 'package:yahoo_finance_data_reader/src/daily/mixer/average_mixer.dart';
+import 'package:yahoo_finance_data_reader/src/daily/mixer/mixer_utils.dart';
 import 'package:yahoo_finance_data_reader/yahoo_finance_data_reader.dart';
 
 class WeightedAverageMixer {
@@ -11,22 +9,16 @@ class WeightedAverageMixer {
     }
 
     // Ensure all lists are of the same size and start from the same date
-    AverageMixer.preparePricesList(weightedPricesList.keys.toList());
+    MixerUtils.preparePricesList(weightedPricesList.keys.toList());
 
     // Calculate proportions for each asset based on the maximum open value
-    final proportions = calculateProportions(weightedPricesList.keys.toList());
+    final proportions = MixerUtils.getProportionList(weightedPricesList.keys.toList());
 
     // Calculate the total weight for normalization
     final double totalWeight = weightedPricesList.values.fold(0, (sum, item) => sum + item);
 
     // Merge the prices using weights and proportions
     return mergeWeightedPrices(weightedPricesList, totalWeight, proportions);
-  }
-
-  static List<double> calculateProportions(List<List<YahooFinanceCandleData>> pricesList) {
-    final maxOpenValue = pricesList.expand((list) => list).map((candle) => candle.open).reduce(max);
-
-    return pricesList.map((list) => list.first.open / maxOpenValue).toList();
   }
 
   static List<YahooFinanceCandleData> mergeWeightedPrices(

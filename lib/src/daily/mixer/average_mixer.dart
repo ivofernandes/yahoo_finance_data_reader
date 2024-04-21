@@ -1,12 +1,12 @@
 import 'dart:math';
 
+import 'package:yahoo_finance_data_reader/src/daily/mixer/mixer_utils.dart';
 import 'package:yahoo_finance_data_reader/yahoo_finance_data_reader.dart';
 
 /// Mix a list of prices dataframes
 class AverageMixer {
   /// Mix a list of prices dataframes in the average
-  static List<YahooFinanceCandleData> mix(
-      List<List<YahooFinanceCandleData>> pricesList) {
+  static List<YahooFinanceCandleData> mix(List<List<YahooFinanceCandleData>> pricesList) {
     final int numberOfAssets = pricesList.length;
 
     // Validate if the assets are possible to merge
@@ -19,30 +19,10 @@ class AverageMixer {
     }
 
     // Reduce all lists to the same size
-    preparePricesList(pricesList);
+    MixerUtils.preparePricesList(pricesList);
 
     // Merge the prices
     return mergeAveragePrices(numberOfAssets, pricesList);
-  }
-
-  /// Align the size of the dataframes of prices
-  static void preparePricesList(List<List<YahooFinanceCandleData>> pricesList) {
-    // Get the more recent start date in the list
-    // before start the average processing
-    DateTime mostRecentStartDate = pricesList.first.first.date;
-    for (final List<YahooFinanceCandleData> prices in pricesList) {
-      if (prices.first.date.isAfter(mostRecentStartDate)) {
-        mostRecentStartDate = prices.first.date;
-      }
-    }
-
-    // Discard the dates before start date
-    for (final List<YahooFinanceCandleData> prices in pricesList) {
-      while (prices.first.date.isBefore(mostRecentStartDate) &&
-          prices.isNotEmpty) {
-        prices.removeAt(0);
-      }
-    }
   }
 
   /// For this merge average process imagine like
@@ -51,7 +31,7 @@ class AverageMixer {
   /// and every movement in your portfolio will be the average of these two assets
   static List<YahooFinanceCandleData> mergeAveragePrices(
       int numberOfAssets, List<List<YahooFinanceCandleData>> pricesList) {
-    final List<double> proportion = getProportionList(pricesList);
+    final List<double> proportion = MixerUtils.getProportionList(pricesList);
 
     // Merge the assets in one single dataframe
     final int numberOfTimePoints = pricesList[0].length;
@@ -98,37 +78,5 @@ class AverageMixer {
     }
 
     return result;
-  }
-
-  /// Check by which value each dataframe needs to be multipled to start at the same value
-  static List<double> getProportionList(
-      List<List<YahooFinanceCandleData>> pricesList) {
-    final maxOpenValue = calculateMaxOpenValue(pricesList);
-
-    //
-    final List<double> result = [];
-    for (var i = 0; i < pricesList.length; i++) {
-      final open = pricesList[i].first.open;
-      final proportion = open / maxOpenValue;
-
-      result.add(proportion);
-    }
-
-    return result;
-  }
-
-  static double calculateMaxOpenValue(
-      List<List<YahooFinanceCandleData>> pricesList) {
-    double maxValue = pricesList.first.first.open;
-
-    for (var i = 1; i < pricesList.length; i++) {
-      final open = pricesList[i].first.open;
-
-      if (maxValue < open) {
-        maxValue = open;
-      }
-    }
-
-    return maxValue;
   }
 }
