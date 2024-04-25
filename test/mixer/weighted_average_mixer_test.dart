@@ -15,6 +15,16 @@ void main() {
       useCache: false,
     );
 
+    final List<YahooFinanceCandleData> pricesES = await yahooFinance.getTickerData(
+      'ES=F',
+      useCache: false,
+    );
+
+    final List<YahooFinanceCandleData> pricesGC = await yahooFinance.getTickerData(
+      'GC=F',
+      useCache: false,
+    );
+
     assert(pricesAverageMixed.isNotEmpty);
     assert(pricesAverageWeightedMixed.isNotEmpty);
 
@@ -26,6 +36,15 @@ void main() {
     final double pricesAverageWeightedChange =
         pricesAverageWeightedMixed.last.adjClose / pricesAverageWeightedMixed.first.adjClose;
 
+    final double pricesESChange = pricesES.last.adjClose / pricesES.first.adjClose;
+    final double pricesGCChange = pricesGC.last.adjClose / pricesGC.first.adjClose;
+    print('prices ES changed by $pricesESChange from ${pricesES.first.date} to ${pricesES.last.date}');
+    print('prices GC changed by $pricesGCChange from ${pricesGC.first.date} to ${pricesGC.last.date}');
+
+    print(
+        'Prices average changed by $pricesAverageChange from ${pricesAverageMixed.first.date} to ${pricesAverageMixed.last.date}');
+    print(
+        'Prices average weighted changed by $pricesAverageWeightedChange from ${pricesAverageWeightedMixed.first.date} to ${pricesAverageWeightedMixed.last.date}');
     expect(pricesAverageChange, pricesAverageWeightedChange);
   });
 }

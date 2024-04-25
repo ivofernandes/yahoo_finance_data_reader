@@ -44,7 +44,8 @@ class WeightedAverageMixer {
 
       for (int i = 0; i < pricesList.length; i++) {
         final List<YahooFinanceCandleData> prices = pricesList[i];
-        final double currentWeight = weights[i] / totalWeight;
+        final double currentProportion = proportions[i];
+        final double currentWeight = (weights[i] / totalWeight) / currentProportion;
 
         // Find the candle with the same date as 'currentDate'
         final YahooFinanceCandleData currentCandle = MixerUtils.findCandleByDate(prices, currentDate, d);
