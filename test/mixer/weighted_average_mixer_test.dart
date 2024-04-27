@@ -32,9 +32,14 @@ void main() {
     expect(pricesAverageMixed.length, pricesAverageWeightedMixed.length);
 
     // Check if they have the same proportion
-    final double pricesAverageChange = pricesAverageMixed.last.adjClose / pricesAverageMixed.first.adjClose;
-    final double pricesAverageWeightedChange =
-        pricesAverageWeightedMixed.last.adjClose / pricesAverageWeightedMixed.first.adjClose;
+    final double pricesAverageMixedLast = pricesAverageMixed.last.adjClose;
+    final double pricesAverageMixedFirst = pricesAverageMixed.first.adjClose;
+
+    final double pricesAverageWeightedMixedLast = pricesAverageWeightedMixed.last.adjClose;
+    final double pricesAverageWeightedMixedFirst = pricesAverageWeightedMixed.first.adjClose;
+
+    final double pricesAverageChange = pricesAverageMixedLast / pricesAverageMixedFirst;
+    final double pricesAverageWeightedChange = pricesAverageWeightedMixedLast / pricesAverageWeightedMixedFirst;
 
     final double pricesESChange = pricesES.last.adjClose / pricesES.first.adjClose;
     final double pricesGCChange = pricesGC.last.adjClose / pricesGC.first.adjClose;

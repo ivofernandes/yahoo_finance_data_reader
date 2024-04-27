@@ -56,17 +56,20 @@ abstract class MixerUtils {
     if (hintIndex >= 0 && hintIndex < prices.length) {
       if (prices[hintIndex].date == targetDate) {
         return prices[hintIndex];
-      } else if (prices[hintIndex].date.compareTo(targetDate) < 0) {
-        // If the current date is before the target, search forward
+      }
+      // If the current date is before the target, search forward
+      else if (prices[hintIndex].date.compareTo(targetDate) < 0) {
         for (int j = hintIndex; j < prices.length; j++) {
-          if (prices[j].date == targetDate) {
+          // If the current date is equals or after the target, return the candle
+          if (prices[j].date.compareTo(targetDate) >= 0) {
             return prices[j];
           }
         }
       } else {
         // If the current date is after the target, search backward
         for (int j = hintIndex; j >= 0; j--) {
-          if (prices[j].date == targetDate) {
+          // If the current date is equals or before the target, return the candle
+          if (prices[j].date.compareTo(targetDate) <= 0) {
             return prices[j];
           }
         }
