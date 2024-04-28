@@ -52,31 +52,38 @@ abstract class MixerUtils {
 
   // Utility method to find a candle by date with optimization
   static YahooFinanceCandleData findCandleByDate(
-      List<YahooFinanceCandleData> prices, DateTime targetDate, int hintIndex) {
-    if (hintIndex >= 0 && hintIndex < prices.length) {
-      if (prices[hintIndex].date == targetDate) {
-        return prices[hintIndex];
-      }
-      // If the current date is before the target, search forward
-      else if (prices[hintIndex].date.compareTo(targetDate) < 0) {
-        for (int j = hintIndex; j < prices.length; j++) {
-          // If the current date is equals or after the target, return the candle
-          if (prices[j].date.compareTo(targetDate) >= 0) {
-            return prices[j];
-          }
+      List<YahooFinanceCandleData> prices, DateTime targetDate, int hintIndexParam) {
+    // Bound the hint index to min and max index in prices list
+    final hintIndex = hintIndexParam.clamp(0, prices.length - 1);
+
+    if (prices[hintIndex].date == targetDate) {
+      return prices[hintIndex];
+    }
+    // If the current date is before the target, search forward
+    else if (prices[hintIndex].date.compareTo(targetDate) < 0) {
+      for (int j = hintIndex; j < prices.length; j++) {
+        // If the current date is equals or after the target, return the candle
+        if (prices[j].date.compareTo(targetDate) >= 0) {
+          return prices[j];
         }
-      } else {
-        // If the current date is after the target, search backward
-        for (int j = hintIndex; j >= 0; j--) {
-          // If the current date is equals or before the target, return the candle
-          if (prices[j].date.compareTo(targetDate) <= 0) {
-            return prices[j];
-          }
+      }
+    } else {
+      // If the current date is after the target, search backward
+      for (int j = hintIndex; j >= 0; j--) {
+        // If the current date is equals or before the target, return the candle
+        if (prices[j].date.compareTo(targetDate) <= 0) {
+          return prices[j];
         }
       }
     }
+    // Search for the closest candle to the target date
+    YahooFinanceCandleData closestCandle = prices.first;
+    for (final YahooFinanceCandleData candle in prices) {
+      if ((candle.date.difference(targetDate).abs().compareTo(closestCandle.date.difference(targetDate).abs())) < 0) {
+        closestCandle = candle;
+      }
+    }
 
-    // Default to a zero-data candle if not found
-    return YahooFinanceCandleData(open: 0, close: 0, adjClose: 0, high: 0, low: 0, volume: 0, date: targetDate);
+    return closestCandle;
   }
 }
