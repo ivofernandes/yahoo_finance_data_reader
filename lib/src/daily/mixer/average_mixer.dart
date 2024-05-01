@@ -6,7 +6,8 @@ import 'package:yahoo_finance_data_reader/yahoo_finance_data_reader.dart';
 /// Mix a list of prices dataframes
 class AverageMixer {
   /// Mix a list of prices dataframes in the average
-  static List<YahooFinanceCandleData> mix(List<List<YahooFinanceCandleData>> pricesList) {
+  static List<YahooFinanceCandleData> mix(
+      List<List<YahooFinanceCandleData>> pricesList) {
     final int numberOfAssets = pricesList.length;
 
     // Validate if the assets are possible to merge

@@ -52,3 +52,6 @@ Adjust prices using proportion between adj close and close
 
 # 1.0.9
 Recover from cache filtering by timestamp
+
+# 1.0.10
+Added support for weighted averages
