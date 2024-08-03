@@ -1,6 +1,6 @@
 # This is a generated file; do not edit or check into version control.
-path_provider=/Users/ifernandes/.pub-cache/hosted/pub.dev/path_provider-2.1.2/
-path_provider_android=/Users/ifernandes/.pub-cache/hosted/pub.dev/path_provider_android-2.2.1/
-path_provider_foundation=/Users/ifernandes/.pub-cache/hosted/pub.dev/path_provider_foundation-2.3.1/
-path_provider_linux=/Users/ifernandes/.pub-cache/hosted/pub.dev/path_provider_linux-2.2.1/
-path_provider_windows=/Users/ifernandes/.pub-cache/hosted/pub.dev/path_provider_windows-2.2.1/
+path_provider=/Users/ivofernandes/.pub-cache/hosted/pub.dev/path_provider-2.1.4/
+path_provider_android=/Users/ivofernandes/.pub-cache/hosted/pub.dev/path_provider_android-2.2.9/
+path_provider_foundation=/Users/ivofernandes/.pub-cache/hosted/pub.dev/path_provider_foundation-2.4.0/
+path_provider_linux=/Users/ivofernandes/.pub-cache/hosted/pub.dev/path_provider_linux-2.2.1/
+path_provider_windows=/Users/ivofernandes/.pub-cache/hosted/pub.dev/path_provider_windows-2.3.0/

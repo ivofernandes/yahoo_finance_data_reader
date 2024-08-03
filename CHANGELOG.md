@@ -55,3 +55,6 @@ Recover from cache filtering by timestamp
 
 # 1.0.10
 Added support for weighted averages
+
+# 1.0.11
+Fixes on the weighted average

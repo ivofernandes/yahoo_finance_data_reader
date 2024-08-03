@@ -5,6 +5,7 @@ import 'package:yahoo_finance_data_reader/src/daily/aux/strategy_time.dart';
 import 'package:yahoo_finance_data_reader/src/daily/mixer/average_mixer.dart';
 import 'package:yahoo_finance_data_reader/src/daily/mixer/weighted_average_mixer.dart';
 import 'package:yahoo_finance_data_reader/src/daily/model/yahoo_finance_candle_data.dart';
+import 'package:yahoo_finance_data_reader/src/daily/model/yahoo_finance_configs.dart';
 import 'package:yahoo_finance_data_reader/src/daily/model/yahoo_finance_response.dart';
 import 'package:yahoo_finance_data_reader/src/daily/services/yahoo_finance_daily_reader.dart';
 import 'package:yahoo_finance_data_reader/src/daily/storage/yahoo_finance_dao.dart';
@@ -22,6 +23,7 @@ class YahooFinanceService {
   Future<List<YahooFinanceCandleData>> getWeightedTickerData(
     String weightedSymbols, {
     bool useCache = true,
+    required bool adjust,
   }) async {
     final Map<String, double> weightsAndSymbols =
         _parseWeightedSymbols(weightedSymbols);
@@ -29,10 +31,12 @@ class YahooFinanceService {
 
     for (final String symbol in weightsAndSymbols.keys) {
       final double weight = weightsAndSymbols[symbol]!;
-      final List<YahooFinanceCandleData> prices = await getTickerData(
+      final List<YahooFinanceCandleData> prices = await _directGetTickerData(
         symbol,
         useCache: useCache,
+        adjust: adjust,
       );
+
       weightedPrices[prices] = weight;
     }
 
@@ -42,14 +46,21 @@ class YahooFinanceService {
   /// Parses the input into a map from symbol to it's weight
   Map<String, double> _parseWeightedSymbols(String weightedSymbols) {
     final Map<String, double> weightsAndSymbols = {};
-    final symbolParts = weightedSymbols.split(',');
+    final symbolParts =
+        weightedSymbols.split(YahooFinanceConfigs.tickersSeparator);
 
     for (int i = 0; i < symbolParts.length; i++) {
       final part = symbolParts[i].trim();
-      final symbol = part.split('-')[0];
-      final weight = double.parse(part.split('-')[1]);
+      final symbol = part.split(YahooFinanceConfigs.weightSeparator)[0];
+      final double? weight =
+          double.tryParse(part.split(YahooFinanceConfigs.weightSeparator)[1]);
 
-      weightsAndSymbols[symbol] = weight;
+      // If the weight is null, the symbol is invalid
+      if (weight == null) {
+        weightsAndSymbols[part] = 1 / symbolParts.length;
+      } else {
+        weightsAndSymbols[symbol] = weight;
+      }
     }
 
     return weightsAndSymbols;
@@ -80,62 +91,27 @@ class YahooFinanceService {
     DateTime? startDate,
     bool adjust = false,
   }) async {
-    if (symbol.contains('-')) {
+    if (symbol.contains(YahooFinanceConfigs.weightSeparator)) {
       return getWeightedTickerData(
         symbol,
         useCache: useCache,
+        adjust: adjust,
       );
-    } else if (symbol.contains(',')) {
-      final List<String> symbols = symbol.split(', ');
+    } else if (symbol.contains(YahooFinanceConfigs.tickersSeparator)) {
+      final List<String> symbols =
+          symbol.split(YahooFinanceConfigs.tickersSeparator);
       return getTickerDataList(
         symbols,
         useCache: useCache,
       );
     }
 
-    // Try to get data from cache
-    List<dynamic>? pricesRaw;
-    if (useCache) {
-      pricesRaw = await YahooFinanceDAO().getAllDailyData(symbol);
-    }
-
-    List<YahooFinanceCandleData> prices = [];
-
-    for (final priceRaw in pricesRaw ?? []) {
-      final YahooFinanceCandleData price = YahooFinanceCandleData.fromJson(
-        priceRaw as Map<String, dynamic>,
-        adjust: adjust,
-      );
-      final bool isAfterStartDate =
-          startDate == null || price.date.isAfter(startDate);
-
-      if (isAfterStartDate) {
-        prices.add(price);
-      }
-    }
-
-    // If have no cached historical data
-    if (prices.isEmpty) {
-      prices = await getAllDataFromYahooFinance(
-        symbol,
-        useCache: useCache,
-        startDate: startDate,
-        adjust: adjust,
-      );
-    }
-
-    // If there is offline data but is not up to date
-    // try to get the remaining part
-    else if (!StrategyTime.isUpToDate(prices, startDate)) {
-      prices = await refreshData(
-        prices,
-        symbol,
-        startDate: startDate,
-        adjust: adjust,
-      );
-    }
-
-    return prices;
+    return _directGetTickerData(
+      symbol,
+      useCache: useCache,
+      startDate: startDate,
+      adjust: adjust,
+    );
   }
 
   Future<List<YahooFinanceCandleData>> refreshData(
@@ -215,5 +191,56 @@ class YahooFinanceService {
     }
 
     return [];
+  }
+
+  Future<List<YahooFinanceCandleData>> _directGetTickerData(
+    String symbol, {
+    required bool useCache,
+    DateTime? startDate,
+    required bool adjust,
+  }) async {
+    // Try to get data from cache
+    List<dynamic>? pricesRaw;
+    if (useCache) {
+      pricesRaw = await YahooFinanceDAO().getAllDailyData(symbol);
+    }
+
+    List<YahooFinanceCandleData> prices = [];
+
+    for (final priceRaw in pricesRaw ?? []) {
+      final YahooFinanceCandleData price = YahooFinanceCandleData.fromJson(
+        priceRaw as Map<String, dynamic>,
+        adjust: adjust,
+      );
+      final bool isAfterStartDate =
+          startDate == null || price.date.isAfter(startDate);
+
+      if (isAfterStartDate) {
+        prices.add(price);
+      }
+    }
+
+    // If have no cached historical data
+    if (prices.isEmpty) {
+      prices = await getAllDataFromYahooFinance(
+        symbol,
+        useCache: useCache,
+        startDate: startDate,
+        adjust: adjust,
+      );
+    }
+
+    // If there is offline data but is not up to date
+    // try to get the remaining part
+    else if (!StrategyTime.isUpToDate(prices, startDate)) {
+      prices = await refreshData(
+        prices,
+        symbol,
+        startDate: startDate,
+        adjust: adjust,
+      );
+    }
+
+    return prices;
   }
 }

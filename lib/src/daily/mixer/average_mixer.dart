@@ -15,6 +15,13 @@ class AverageMixer {
       return [];
     }
 
+    // No list can be empty if we want to get
+    for (final priceList in pricesList) {
+      if (priceList.isEmpty) {
+        return [];
+      }
+    }
+
     if (numberOfAssets < 2) {
       return pricesList.first;
     }

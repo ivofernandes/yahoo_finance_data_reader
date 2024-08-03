@@ -92,7 +92,7 @@ class RawSearch extends StatefulWidget {
 class _RawSearchState extends State<RawSearch> {
   @override
   Widget build(BuildContext context) {
-    String ticker = 'GOOG';
+    String ticker = 'SOL-USD';
     YahooFinanceDailyReader yahooFinanceDataReader =
         const YahooFinanceDailyReader();
 
@@ -147,7 +147,7 @@ class DTOSearch extends StatefulWidget {
 
 class _DTOSearchState extends State<DTOSearch> {
   final TextEditingController controller = TextEditingController(
-    text: 'GOOG',
+    text: 'SOL-USD',
   );
   late Future<YahooFinanceResponse> future;
 
@@ -206,7 +206,18 @@ class _DTOSearchState extends State<DTOSearch> {
   }
 
   void load() {
-    future = const YahooFinanceDailyReader().getDailyDTOs(controller.text);
+    try {
+      future = const YahooFinanceDailyReader().getDailyDTOs(controller.text);
+    } catch (e) {
+      debugPrint('Error: $e');
+      // Show snackbar with error
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Error: $e'),
+        ),
+      );
+    }
+
     setState(() {});
   }
 }
@@ -273,7 +284,7 @@ class YahooFinanceServiceWidget extends StatefulWidget {
 
 class _YahooFinanceServiceWidgetState extends State<YahooFinanceServiceWidget> {
   TextEditingController controller = TextEditingController(
-    text: 'GOOG',
+    text: 'SOL-USD',
   );
   List<YahooFinanceCandleData> pricesList = [];
   List? cachedPrices;
@@ -291,12 +302,22 @@ class _YahooFinanceServiceWidgetState extends State<YahooFinanceServiceWidget> {
     loading = false;
     setState(() {});
 
-    // Get response for the first time
-    pricesList = await YahooFinanceService().getTickerData(
-      controller.text,
-      startDate: startDate,
-      adjust: adjust,
-    );
+    try {
+      // Get response for the first time
+      pricesList = await YahooFinanceService().getTickerData(
+        controller.text,
+        startDate: startDate,
+        adjust: adjust,
+      );
+    } catch (e) {
+      debugPrint('Error: $e');
+      // Show snackbar with error
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Error: $e'),
+        ),
+      );
+    }
 
     loading = false;
     setState(() {});
@@ -306,8 +327,19 @@ class _YahooFinanceServiceWidgetState extends State<YahooFinanceServiceWidget> {
     loading = true;
     setState(() {});
 
-    await YahooFinanceDAO().removeDailyData(controller.text);
-    cachedPrices = await YahooFinanceDAO().getAllDailyData(controller.text);
+    try {
+      await YahooFinanceDAO().removeDailyData(controller.text);
+      cachedPrices = await YahooFinanceDAO().getAllDailyData(controller.text);
+    } catch (e) {
+      debugPrint('Error: $e');
+      // Show snackbar with error
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Error: $e'),
+        ),
+      );
+    }
+
     loading = false;
     setState(() {});
   }
@@ -330,6 +362,7 @@ class _YahooFinanceServiceWidgetState extends State<YahooFinanceServiceWidget> {
       itemBuilder: (context, i) {
         if (i == 0) {
           final List<String> tickerOptions = [
+            'SOL-USD',
             'GOOG',
             'ES=F',
             'GC=F',
@@ -338,6 +371,7 @@ class _YahooFinanceServiceWidgetState extends State<YahooFinanceServiceWidget> {
             'GOOG, AAPL',
             'AAPL',
             'AMZN',
+            'BTC-USD',
           ];
           return Card(
             child: Container(
@@ -438,13 +472,18 @@ class _YahooFinanceServiceWidgetState extends State<YahooFinanceServiceWidget> {
                       ],
                     ),
                   ),
-                  Text('Prices in the service ${pricesList.length}'),
-                  Text('First date: ${pricesList.first.date}'),
-                  Text('First price: ${pricesList.first.adjClose}'),
-                  Text('Last date: ${pricesList.last.date}'),
-                  Text('Last price: ${pricesList.last.adjClose}'),
-                  Text(
-                      'Variation: ${((pricesList.last.adjClose / pricesList.first.adjClose - 1) * 100).toStringAsFixed(2)} %'),
+                  if (pricesList.isNotEmpty)
+                    Column(
+                      children: [
+                        Text('Prices in the service ${pricesList.length}'),
+                        Text('First date: ${pricesList.first.date}'),
+                        Text('First price: ${pricesList.first.adjClose}'),
+                        Text('Last date: ${pricesList.last.date}'),
+                        Text('Last price: ${pricesList.last.adjClose}'),
+                        Text(
+                            'Variation: ${((pricesList.last.adjClose / pricesList.first.adjClose - 1) * 100).toStringAsFixed(2)} %'),
+                      ],
+                    ),
                   Text('Prices in the cache ${cachedPrices?.length}'),
                   pricesList.isEmpty
                       ? const Text('No data')

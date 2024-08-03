@@ -30,7 +30,7 @@ class YahooFinanceDailyReader {
     }
 
     final Map<String, dynamic> dailyData = await getDailyData(
-      ticker,
+      ticker.trim(),
       startTimestamp: startTimestamp,
     );
 
