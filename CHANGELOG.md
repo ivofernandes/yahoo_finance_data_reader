@@ -58,3 +58,6 @@ Added support for weighted averages
 
 # 1.0.11
 Fixes on the weighted average
+
+# 1.0.12
+Added support to start date in weighted average

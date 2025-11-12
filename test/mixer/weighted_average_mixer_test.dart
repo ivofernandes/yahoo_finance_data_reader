@@ -66,4 +66,23 @@ void main() {
     // Check if the weighted average is close enough being doubles
     expect(pricesAverageChange, closeTo(pricesAverageWeightedChange, 0.01));
   });
+
+  test('Escape cryptos', () async {
+    final yahooFinance = YahooFinanceService();
+
+    final List<YahooFinanceCandleData> btcPrices =
+        await yahooFinance.getWeightedTickerData(
+      'BTC-USD',
+      adjust: true,
+      useCache: false,
+      startDate: DateTime(2017, 1, 1),
+    );
+
+    expect(btcPrices.isNotEmpty, true);
+    final firstPrice = btcPrices.first;
+    assert(firstPrice.adjClose > 0);
+    assert(firstPrice.date.year == 2017);
+    assert(firstPrice.date.month == 1);
+    assert(firstPrice.date.day == 1);
+  });
 }
