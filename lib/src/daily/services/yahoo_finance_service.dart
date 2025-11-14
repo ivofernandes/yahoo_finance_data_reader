@@ -228,13 +228,13 @@ class YahooFinanceService {
   static Map<String, double> parseWeightedSymbols(String weightedSymbols) {
     final Map<String, double> weightsAndSymbols = {};
     final symbolParts =
-    weightedSymbols.split(YahooFinanceConfigs.tickersSeparator);
+        weightedSymbols.split(YahooFinanceConfigs.tickersSeparator);
 
     for (int i = 0; i < symbolParts.length; i++) {
       final part = symbolParts[i].trim();
       final symbol = part.split(YahooFinanceConfigs.weightSeparator)[0];
       final double? weight =
-      double.tryParse(part.split(YahooFinanceConfigs.weightSeparator)[1]);
+          double.tryParse(part.split(YahooFinanceConfigs.weightSeparator)[1]);
 
       // If the weight is null, the symbol is invalid
       if (weight == null) {
