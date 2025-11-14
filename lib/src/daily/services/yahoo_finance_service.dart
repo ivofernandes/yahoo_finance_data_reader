@@ -22,11 +22,12 @@ class YahooFinanceService {
   /// Fetches and mixes ticker data based on the weighted symbols
   Future<List<YahooFinanceCandleData>> getWeightedTickerData(
     String weightedSymbols, {
-    bool useCache = true,
     required bool adjust,
+    bool useCache = true,
+    DateTime? startDate,
   }) async {
     final Map<String, double> weightsAndSymbols =
-        _parseWeightedSymbols(weightedSymbols);
+        parseWeightedSymbols(weightedSymbols);
     final Map<List<YahooFinanceCandleData>, double> weightedPrices = {};
 
     for (final String symbol in weightsAndSymbols.keys) {
@@ -35,35 +36,13 @@ class YahooFinanceService {
         symbol,
         useCache: useCache,
         adjust: adjust,
+        startDate: startDate,
       );
 
       weightedPrices[prices] = weight;
     }
 
     return WeightedAverageMixer.mix(weightedPrices);
-  }
-
-  /// Parses the input into a map from symbol to it's weight
-  Map<String, double> _parseWeightedSymbols(String weightedSymbols) {
-    final Map<String, double> weightsAndSymbols = {};
-    final symbolParts =
-        weightedSymbols.split(YahooFinanceConfigs.tickersSeparator);
-
-    for (int i = 0; i < symbolParts.length; i++) {
-      final part = symbolParts[i].trim();
-      final symbol = part.split(YahooFinanceConfigs.weightSeparator)[0];
-      final double? weight =
-          double.tryParse(part.split(YahooFinanceConfigs.weightSeparator)[1]);
-
-      // If the weight is null, the symbol is invalid
-      if (weight == null) {
-        weightsAndSymbols[part] = 1 / symbolParts.length;
-      } else {
-        weightsAndSymbols[symbol] = weight;
-      }
-    }
-
-    return weightsAndSymbols;
   }
 
   Future<List<YahooFinanceCandleData>> getTickerDataList(
@@ -96,6 +75,7 @@ class YahooFinanceService {
         symbol,
         useCache: useCache,
         adjust: adjust,
+        startDate: startDate,
       );
     } else if (symbol.contains(YahooFinanceConfigs.tickersSeparator)) {
       final List<String> symbols =
@@ -196,8 +176,8 @@ class YahooFinanceService {
   Future<List<YahooFinanceCandleData>> _directGetTickerData(
     String symbol, {
     required bool useCache,
-    DateTime? startDate,
     required bool adjust,
+    DateTime? startDate,
   }) async {
     // Try to get data from cache
     List<dynamic>? pricesRaw;
@@ -242,5 +222,28 @@ class YahooFinanceService {
     }
 
     return prices;
+  }
+
+  /// Parses the input into a map from symbol to it's weight
+  static Map<String, double> parseWeightedSymbols(String weightedSymbols) {
+    final Map<String, double> weightsAndSymbols = {};
+    final symbolParts =
+    weightedSymbols.split(YahooFinanceConfigs.tickersSeparator);
+
+    for (int i = 0; i < symbolParts.length; i++) {
+      final part = symbolParts[i].trim();
+      final symbol = part.split(YahooFinanceConfigs.weightSeparator)[0];
+      final double? weight =
+      double.tryParse(part.split(YahooFinanceConfigs.weightSeparator)[1]);
+
+      // If the weight is null, the symbol is invalid
+      if (weight == null) {
+        weightsAndSymbols[part] = 1 / symbolParts.length;
+      } else {
+        weightsAndSymbols[symbol] = weight;
+      }
+    }
+
+    return weightsAndSymbols;
   }
 }

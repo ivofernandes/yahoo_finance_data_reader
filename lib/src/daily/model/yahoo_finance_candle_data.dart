@@ -39,7 +39,7 @@ class YahooFinanceCandleData {
     Map<String, dynamic> json, {
     bool adjust = false,
   }) {
-    double adjClose = double.parse(json['adjClose'].toString());
+    final double adjClose = double.parse(json['adjClose'].toString());
     double close = double.parse(json['close'].toString());
     double open = double.parse(json['open'].toString());
     double low = double.parse(json['low'].toString());

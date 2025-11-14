@@ -61,3 +61,6 @@ Fixes on the weighted average
 
 # 1.0.12
 Added support to start date in weighted average
+
+# 1.0.13
+Fix analysis
