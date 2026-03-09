@@ -6,7 +6,7 @@
 // tree, read text, and verify that the values of widget properties are correct.
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:yahoo_finance_data_reader/src/daily/aux/join_prices.dart';
+import 'package:yahoo_finance_data_reader/src/daily/utils/join_prices.dart';
 import 'package:yahoo_finance_data_reader/src/daily/model/yahoo_finance_candle_data.dart';
 
 import 'join_prices_text_aux.dart';

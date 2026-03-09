@@ -64,3 +64,6 @@ Added support to start date in weighted average
 
 # 1.0.13
 Fix analysis
+
+# 1.0.14
+Bug fixes
