@@ -38,6 +38,9 @@ dependencies:
   yahoo_finance_data_reader:
     path: ../
 
+dependency_overrides:
+  win32: ^5.5.1
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
