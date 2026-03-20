@@ -25,6 +25,17 @@ yahoo_finance_data_reader: ^1.0.14
 YahooFinanceResponse response = await YahooFinanceDailyReader().getDailyDTOs('GOOG');
 ```
 
+You can also provide your own `Dio` instance when you need custom behavior like
+request caching or shared interceptors:
+
+```dart
+final dio = Dio()
+  ..interceptors.add(DioCacheInterceptor(options: cacheOptions));
+
+final reader = YahooFinanceDailyReader(dio: dio);
+final response = await reader.getDailyDTOs('GOOG');
+```
+
 ## Additional information
 To include in your app as a widget you can start with this future builder and debug your way until your desired result
 

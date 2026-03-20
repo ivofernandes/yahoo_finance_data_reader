@@ -1,3 +1,4 @@
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:yahoo_finance_data_reader/yahoo_finance_data_reader.dart';
@@ -101,6 +102,39 @@ void main() {
 
     assert(pricesAverageMixed.isNotEmpty);
     assert(pricesAverageWeightedMixed.isNotEmpty);
+  });
+
+  test('Uses provided Dio instance', () async {
+    final Dio dio = Dio();
+    dio.interceptors.add(
+      InterceptorsWrapper(
+        onRequest: (options, handler) {
+          handler.resolve(
+            Response<dynamic>(
+              requestOptions: options,
+              statusCode: 200,
+              data: '''
+{
+  "chart": {
+    "result": [
+      {
+        "meta": {"symbol": "GOOG"}
+      }
+    ]
+  }
+}
+''',
+            ),
+          );
+        },
+      ),
+    );
+
+    final yahooFinance = YahooFinanceDailyReader(dio: dio);
+
+    final Map<String, dynamic> data = await yahooFinance.getDailyData('GOOG');
+
+    expect(data['meta']['symbol'], 'GOOG');
   });
 }
 

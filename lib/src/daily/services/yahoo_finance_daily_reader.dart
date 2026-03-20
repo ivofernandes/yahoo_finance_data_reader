@@ -13,9 +13,14 @@ class YahooFinanceDailyReader {
   /// Headers of the http request
   final Map<String, dynamic>? headers;
 
+  /// Optional Dio client to customize requests, such as adding cache
+  /// interceptors or sharing an existing client instance.
+  final Dio? dio;
+
   const YahooFinanceDailyReader({
     this.timeout = const Duration(seconds: 30),
     this.headers,
+    this.dio,
   });
 
   /// getDailyData but transform the data into a YahooFinanceData list
@@ -57,9 +62,11 @@ class YahooFinanceDailyReader {
     final String url =
         'https://query2.finance.yahoo.com/v8/finance/chart/$tickerUpperCase?$params';
 
-    final Dio dio = Dio();
-    dio.options.connectTimeout = Duration(milliseconds: timeout.inMilliseconds);
-    dio.options.receiveTimeout = Duration(milliseconds: timeout.inMilliseconds);
+    final Dio client = dio ?? Dio();
+    client.options.connectTimeout =
+        Duration(milliseconds: timeout.inMilliseconds);
+    client.options.receiveTimeout =
+        Duration(milliseconds: timeout.inMilliseconds);
 
     Map<String, dynamic> currentHeaders = {
       'content-type': 'application/json',
@@ -71,9 +78,9 @@ class YahooFinanceDailyReader {
       currentHeaders = headers!;
     }
 
-    dio.options.headers = currentHeaders;
+    client.options.headers = currentHeaders;
 
-    final Response<dynamic> response = await dio.get(url);
+    final Response<dynamic> response = await client.get(url);
 
     if (response.statusCode == 200) {
       final String body = response.toString();
