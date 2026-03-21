@@ -1,7 +1,5 @@
 import 'dart:async';
 
-import 'package:yahoo_finance_data_reader/src/daily/utils/join_prices.dart';
-import 'package:yahoo_finance_data_reader/src/daily/utils/strategy_time.dart';
 import 'package:yahoo_finance_data_reader/src/daily/mixer/average_mixer.dart';
 import 'package:yahoo_finance_data_reader/src/daily/mixer/weighted_average_mixer.dart';
 import 'package:yahoo_finance_data_reader/src/daily/model/yahoo_finance_candle_data.dart';
@@ -9,6 +7,8 @@ import 'package:yahoo_finance_data_reader/src/daily/model/yahoo_finance_configs.
 import 'package:yahoo_finance_data_reader/src/daily/model/yahoo_finance_response.dart';
 import 'package:yahoo_finance_data_reader/src/daily/services/yahoo_finance_daily_reader.dart';
 import 'package:yahoo_finance_data_reader/src/daily/storage/yahoo_finance_dao.dart';
+import 'package:yahoo_finance_data_reader/src/daily/utils/join_prices.dart';
+import 'package:yahoo_finance_data_reader/src/daily/utils/strategy_time.dart';
 
 /// This class abstracts for the state machine how the API vs cache works
 class YahooFinanceService {

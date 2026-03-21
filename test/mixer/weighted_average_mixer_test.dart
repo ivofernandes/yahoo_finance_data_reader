@@ -53,15 +53,10 @@ void main() {
         pricesES.last.adjClose / pricesES.first.adjClose;
     final double pricesGCChange =
         pricesGC.last.adjClose / pricesGC.first.adjClose;
-    print(
-        'prices ES changed by $pricesESChange from ${pricesES.first.date} to ${pricesES.last.date}');
-    print(
-        'prices GC changed by $pricesGCChange from ${pricesGC.first.date} to ${pricesGC.last.date}');
-
-    print(
-        'Prices average changed by $pricesAverageChange from ${pricesAverageMixed.first.date} to ${pricesAverageMixed.last.date}');
-    print(
-        'Prices average weighted changed by $pricesAverageWeightedChange from ${pricesAverageWeightedMixed.first.date} to ${pricesAverageWeightedMixed.last.date}');
+    expect(pricesESChange, greaterThan(0));
+    expect(pricesGCChange, greaterThan(0));
+    expect(pricesAverageChange, greaterThan(0));
+    expect(pricesAverageWeightedChange, greaterThan(0));
 
     // Check if the weighted average is close enough being doubles
     expect(pricesAverageChange, closeTo(pricesAverageWeightedChange, 0.01));
@@ -75,7 +70,7 @@ void main() {
       'BTC-USD',
       adjust: true,
       useCache: false,
-      startDate: DateTime(2017, 1, 1),
+      startDate: DateTime(2017),
     );
 
     expect(btcPrices.isNotEmpty, true);
