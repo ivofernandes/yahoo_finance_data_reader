@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:dio/dio.dart';
 import 'package:intl/intl.dart';
 import 'package:yahoo_finance_data_reader/yahoo_finance_data_reader.dart';
 
@@ -46,12 +47,17 @@ class _BottomSelectionWidgetState extends State<BottomSelectionWidget> {
             YahooFinanceServiceWidget(),
             DTOSearch(),
             RawSearch(),
+            ReaderConfigSearch(),
           ],
         ),
       ),
       bottomNavigationBar: BottomNavigationBar(
         onTap: _onItemSelected,
         currentIndex: _selectedIndex,
+        type: BottomNavigationBarType.fixed,
+        backgroundColor: Colors.white,
+        selectedItemColor: Theme.of(context).primaryColor,
+        unselectedItemColor: Colors.black54,
         items: const [
           BottomNavigationBarItem(
             icon: Icon(Icons.storage),
@@ -64,6 +70,10 @@ class _BottomSelectionWidgetState extends State<BottomSelectionWidget> {
           BottomNavigationBarItem(
             icon: Icon(Icons.raw_on),
             label: 'Raw',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.tune),
+            label: 'Reader Config',
           ),
         ],
       ),
@@ -500,5 +510,202 @@ class _YahooFinanceServiceWidgetState extends State<YahooFinanceServiceWidget> {
         }
       },
     );
+  }
+}
+
+class ReaderConfigSearch extends StatefulWidget {
+  const ReaderConfigSearch({super.key});
+
+  @override
+  State<ReaderConfigSearch> createState() => _ReaderConfigSearchState();
+}
+
+class _ReaderConfigSearchState extends State<ReaderConfigSearch> {
+  final TextEditingController tickerController = TextEditingController(
+    text: 'GOOG',
+  );
+  final TextEditingController timeoutController = TextEditingController(
+    text: '30',
+  );
+  final TextEditingController headerKeyController = TextEditingController(
+    text: 'x-example-header',
+  );
+  final TextEditingController headerValueController = TextEditingController(
+    text: 'reader-example',
+  );
+
+  bool useCustomDio = false;
+  bool adjust = false;
+  DateTime? startDate;
+  late Future<YahooFinanceResponse> future;
+
+  @override
+  void initState() {
+    super.initState();
+    load();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        const Text(
+          'Test YahooFinanceDailyReader with custom Dio and all reader configs.',
+        ),
+        TextField(
+          controller: tickerController,
+          decoration: const InputDecoration(
+            labelText: 'Ticker',
+          ),
+        ),
+        TextField(
+          controller: timeoutController,
+          keyboardType: TextInputType.number,
+          decoration: const InputDecoration(
+            labelText: 'Timeout (seconds)',
+          ),
+        ),
+        TextField(
+          controller: headerKeyController,
+          decoration: const InputDecoration(
+            labelText: 'Custom header key',
+          ),
+        ),
+        TextField(
+          controller: headerValueController,
+          decoration: const InputDecoration(
+            labelText: 'Custom header value',
+          ),
+        ),
+        CheckboxListTile(
+          title: const Text('Use custom Dio with log interceptor'),
+          value: useCustomDio,
+          onChanged: (value) => setState(() => useCustomDio = value ?? false),
+        ),
+        CheckboxListTile(
+          title: const Text('Adjust prices'),
+          value: adjust,
+          onChanged: (value) => setState(() => adjust = value ?? false),
+        ),
+        Row(
+          children: [
+            Expanded(
+              child: Text(
+                startDate != null
+                    ? 'Start date: ${DateFormat('yyyy-MM-dd').format(startDate!)}'
+                    : 'Start date: all available history',
+              ),
+            ),
+            MaterialButton(
+              onPressed: () async {
+                DateTime? picked = await showDatePicker(
+                  context: context,
+                  initialDate: startDate ?? DateTime.now(),
+                  firstDate: DateTime(1900),
+                  lastDate: DateTime(2101),
+                );
+                if (picked != null && picked != startDate) {
+                  setState(() => startDate = picked);
+                }
+              },
+              child: const Text('Pick start date'),
+            ),
+            MaterialButton(
+              onPressed: () => setState(() => startDate = null),
+              child: const Text('Clear'),
+            ),
+          ],
+        ),
+        MaterialButton(
+          color: Theme.of(context).primaryColor,
+          onPressed: load,
+          child: const Text('Load with config'),
+        ),
+        Expanded(
+          child: FutureBuilder(
+            future: future,
+            builder: (BuildContext context,
+                AsyncSnapshot<YahooFinanceResponse> snapshot) {
+              if (snapshot.connectionState != ConnectionState.done) {
+                return const Center(
+                  child: CircularProgressIndicator(),
+                );
+              }
+
+              if (snapshot.hasError) {
+                return Text('Error: ${snapshot.error}');
+              }
+
+              final YahooFinanceResponse? response = snapshot.data;
+              if (response == null || response.candlesData.isEmpty) {
+                return const Text('No data');
+              }
+
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('Loaded candles: ${response.candlesData.length}'),
+                  Text('First date: ${response.candlesData.first.date}'),
+                  Text('Last date: ${response.candlesData.last.date}'),
+                  Expanded(
+                    child: ListView.builder(
+                      itemCount: response.candlesData.length.clamp(0, 30),
+                      itemBuilder: (BuildContext context, int index) {
+                        return _CandleCard(response.candlesData[index]);
+                      },
+                    ),
+                  ),
+                ],
+              );
+            },
+          ),
+        ),
+      ],
+    );
+  }
+
+  void load() {
+    try {
+      final int timeoutSeconds =
+          int.tryParse(timeoutController.text.trim()) ?? 30;
+
+      final Map<String, dynamic> requestHeaders = {
+        'content-type': 'application/json',
+        'charset': 'utf-8',
+        'Access-Control-Allow-Origin': '*',
+      };
+
+      final String customHeaderKey = headerKeyController.text.trim();
+      if (customHeaderKey.isNotEmpty) {
+        requestHeaders[customHeaderKey] = headerValueController.text.trim();
+      }
+
+      Dio? customDio;
+      if (useCustomDio) {
+        customDio = Dio()
+          ..interceptors.add(
+            LogInterceptor(
+              requestBody: false,
+              responseBody: false,
+            ),
+          );
+      }
+
+      final YahooFinanceDailyReader reader = YahooFinanceDailyReader(
+        timeout: Duration(seconds: timeoutSeconds),
+        headers: requestHeaders,
+        dio: customDio,
+      );
+
+      future = reader.getDailyDTOs(
+        tickerController.text.trim(),
+        startDate: startDate,
+        adjust: adjust,
+      );
+    } catch (e) {
+      future = Future.error(e);
+    }
+
+    setState(() {});
   }
 }
