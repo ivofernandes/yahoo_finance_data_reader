@@ -12,10 +12,11 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
+    return MaterialApp(
+      theme: ThemeData.dark(),
       title: 'Flutter Demo',
       debugShowCheckedModeBanner: false,
-      home: BottomSelectionWidget(),
+      home: const BottomSelectionWidget(),
     );
   }
 }
@@ -42,7 +43,7 @@ class _BottomSelectionWidgetState extends State<BottomSelectionWidget> {
         child: PageView(
           physics: const NeverScrollableScrollPhysics(),
           controller: _pageController,
-          onPageChanged: _onItemSelected,
+          onPageChanged: _onPageChanged,
           children: const [
             YahooFinanceServiceWidget(),
             DTOSearch(),
@@ -52,7 +53,7 @@ class _BottomSelectionWidgetState extends State<BottomSelectionWidget> {
         ),
       ),
       bottomNavigationBar: BottomNavigationBar(
-        onTap: _onItemSelected,
+        onTap: _onItemTapped,
         currentIndex: _selectedIndex,
         type: BottomNavigationBarType.fixed,
         backgroundColor: Colors.white,
@@ -80,13 +81,18 @@ class _BottomSelectionWidgetState extends State<BottomSelectionWidget> {
     );
   }
 
-  void _onItemSelected(int index) {
+  void _onItemTapped(int index) {
     setState(() {
       _pageController.animateToPage(index,
           duration: const Duration(milliseconds: 200), curve: Curves.easeOut);
       _selectedIndex = index;
     });
-    debugPrint(index.toString());
+  }
+
+  void _onPageChanged(int index) {
+    setState(() {
+      _selectedIndex = index;
+    });
   }
 }
 
