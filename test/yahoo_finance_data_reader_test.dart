@@ -133,8 +133,7 @@ void main() {
     final yahooFinance = YahooFinanceDailyReader(dio: dio);
 
     final Map<String, dynamic> data = await yahooFinance.getDailyData('GOOG');
-    final Map<String, dynamic> meta =
-        data['meta'] as Map<String, dynamic>;
+    final Map<String, dynamic> meta = data['meta'] as Map<String, dynamic>;
 
     expect(meta['symbol'], 'GOOG');
   });
