@@ -12,8 +12,33 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    const Color seedColor = Color(0xFF7C4DFF);
+
     return MaterialApp(
-      theme: ThemeData.dark(),
+      theme: ThemeData(
+        useMaterial3: true,
+        brightness: Brightness.dark,
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: seedColor,
+          brightness: Brightness.dark,
+        ),
+        scaffoldBackgroundColor: const Color(0xFF0B0B1B),
+        cardTheme: CardThemeData(
+          color: const Color(0xFF181828),
+          elevation: 4,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(18),
+          ),
+        ),
+        inputDecorationTheme: InputDecorationTheme(
+          filled: true,
+          fillColor: const Color(0xFF121223),
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: BorderSide.none,
+          ),
+        ),
+      ),
       title: 'Flutter Demo',
       debugShowCheckedModeBanner: false,
       home: const BottomSelectionWidget(),
@@ -36,29 +61,43 @@ class _BottomSelectionWidgetState extends State<BottomSelectionWidget> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        centerTitle: true,
+        backgroundColor: Colors.transparent,
+        elevation: 0,
         title: const Text('Yahoo Finance Example'),
       ),
       body: Container(
-        padding: const EdgeInsets.all(20.0),
-        child: PageView(
-          physics: const NeverScrollableScrollPhysics(),
-          controller: _pageController,
-          onPageChanged: _onPageChanged,
-          children: const [
-            YahooFinanceServiceWidget(),
-            DTOSearch(),
-            RawSearch(),
-            ReaderConfigSearch(),
-          ],
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [Color(0xFF0E0E1F), Color(0xFF090913)],
+          ),
+        ),
+        child: SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            child: PageView(
+              physics: const NeverScrollableScrollPhysics(),
+              controller: _pageController,
+              onPageChanged: _onPageChanged,
+              children: const [
+                YahooFinanceServiceWidget(),
+                DTOSearch(),
+                RawSearch(),
+                ReaderConfigSearch(),
+              ],
+            ),
+          ),
         ),
       ),
       bottomNavigationBar: BottomNavigationBar(
         onTap: _onItemTapped,
         currentIndex: _selectedIndex,
         type: BottomNavigationBarType.fixed,
-        backgroundColor: Colors.white,
-        selectedItemColor: Theme.of(context).primaryColor,
-        unselectedItemColor: Colors.black54,
+        backgroundColor: const Color(0xFF131326),
+        selectedItemColor: Theme.of(context).colorScheme.secondary,
+        unselectedItemColor: Colors.white54,
         items: const [
           BottomNavigationBarItem(
             icon: Icon(Icons.storage),
@@ -126,7 +165,15 @@ class _RawSearchState extends State<RawSearch> {
 
           Map<String, dynamic> historicalData = snapshot.data!;
           return SingleChildScrollView(
-            child: Text(historicalData.toString()),
+            child: Card(
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: SelectableText(
+                  historicalData.toString(),
+                  style: const TextStyle(height: 1.4),
+                ),
+              ),
+            ),
           );
         } else if (snapshot.hasError) {
           return Text('Error ${snapshot.error}');
@@ -177,15 +224,29 @@ class _DTOSearchState extends State<DTOSearch> {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        const Text('Ticker from yahoo finance'),
+        const SizedBox(height: 8),
+        const Text(
+          'Ticker from Yahoo Finance',
+          style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+        ),
+        const SizedBox(height: 12),
         TextField(
           controller: controller,
+          decoration: const InputDecoration(
+            hintText: 'Example: SOL-USD',
+          ),
         ),
+        const SizedBox(height: 12),
         MaterialButton(
           onPressed: load,
+          minWidth: 160,
+          padding: const EdgeInsets.symmetric(vertical: 14),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
           child: const Text('Load'),
-          color: Theme.of(context).primaryColor,
+          color: Theme.of(context).colorScheme.primary,
         ),
+        const SizedBox(height: 12),
         Expanded(
           child: FutureBuilder(
             future: future,
@@ -249,14 +310,20 @@ class _CandleCard extends StatelessWidget {
 
     return Card(
       child: Container(
-        margin: const EdgeInsets.all(10),
+        margin: const EdgeInsets.all(8),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
-                Text(date),
+                Text(
+                  date,
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
               ],
             ),
             const SizedBox(
@@ -315,7 +382,7 @@ class _YahooFinanceServiceWidgetState extends State<YahooFinanceServiceWidget> {
   }
 
   void load() async {
-    loading = false;
+    loading = true;
     setState(() {});
 
     try {
@@ -393,6 +460,7 @@ class _YahooFinanceServiceWidgetState extends State<YahooFinanceServiceWidget> {
             child: Container(
               margin: const EdgeInsets.all(10),
               child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   SingleChildScrollView(
                     scrollDirection: Axis.horizontal,
@@ -401,7 +469,12 @@ class _YahooFinanceServiceWidgetState extends State<YahooFinanceServiceWidget> {
                           .map(
                             (option) => Container(
                               margin: const EdgeInsets.all(5),
-                              child: MaterialButton(
+                              child: FilledButton.tonal(
+                                style: FilledButton.styleFrom(
+                                  disabledBackgroundColor:
+                                      Theme.of(context).colorScheme.primary,
+                                  disabledForegroundColor: Colors.white,
+                                ),
                                 child: Text(option),
                                 onPressed: controller.text == option
                                     ? null
@@ -411,13 +484,13 @@ class _YahooFinanceServiceWidgetState extends State<YahooFinanceServiceWidget> {
                                         });
                                         load();
                                       },
-                                color: Colors.amberAccent,
                               ),
                             ),
                           )
                           .toList(),
                     ),
                   ),
+                  const SizedBox(height: 8),
                   SingleChildScrollView(
                     scrollDirection: Axis.horizontal,
                     child: Row(
@@ -426,8 +499,9 @@ class _YahooFinanceServiceWidgetState extends State<YahooFinanceServiceWidget> {
                           startDate != null
                               ? 'Selected Date:\n ${DateFormat('yyyy-MM-dd').format(startDate!)}'
                               : 'No Date Selected',
+                          style: const TextStyle(fontWeight: FontWeight.w500),
                         ),
-                        MaterialButton(
+                        TextButton(
                           onPressed: () async {
                             DateTime? picked = await showDatePicker(
                               context: context,
@@ -443,7 +517,6 @@ class _YahooFinanceServiceWidgetState extends State<YahooFinanceServiceWidget> {
                           },
                           child: const Text(
                             'Select Date',
-                            style: TextStyle(color: Colors.blue),
                           ),
                         ),
                       ],
@@ -458,38 +531,33 @@ class _YahooFinanceServiceWidgetState extends State<YahooFinanceServiceWidget> {
                   const Text('Ticker from yahoo finance:'),
                   TextField(
                     controller: controller,
-                  ),
-                  SingleChildScrollView(
-                    scrollDirection: Axis.horizontal,
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: [
-                        MaterialButton(
-                          color: Theme.of(context).primaryColor,
-                          onPressed: load,
-                          child: const Text('Load'),
-                        ),
-                        const SizedBox(
-                          width: 10,
-                        ),
-                        MaterialButton(
-                          color: Theme.of(context).colorScheme.error,
-                          onPressed: deleteCache,
-                          child: const Text('Delete Cache'),
-                        ),
-                        const SizedBox(
-                          width: 10,
-                        ),
-                        MaterialButton(
-                          color: Theme.of(context).colorScheme.onPrimary,
-                          onPressed: refresh,
-                          child: const Text('Refresh'),
-                        ),
-                      ],
+                    decoration: const InputDecoration(
+                      hintText: 'Enter ticker',
                     ),
                   ),
+                  const SizedBox(height: 12),
+                  Wrap(
+                    spacing: 10,
+                    runSpacing: 10,
+                    children: [
+                      FilledButton(
+                        onPressed: load,
+                        child: const Text('Load'),
+                      ),
+                      FilledButton.tonal(
+                        onPressed: deleteCache,
+                        child: const Text('Delete Cache'),
+                      ),
+                      OutlinedButton(
+                        onPressed: refresh,
+                        child: const Text('Refresh'),
+                      ),
+                    ],
+                  ),
+                  const Divider(height: 24),
                   if (pricesList.isNotEmpty)
                     Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text('Prices in the service ${pricesList.length}'),
                         Text('First date: ${pricesList.first.date}'),
@@ -554,16 +622,20 @@ class _ReaderConfigSearchState extends State<ReaderConfigSearch> {
   @override
   Widget build(BuildContext context) {
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const Text(
           'Test YahooFinanceDailyReader with custom Dio and all reader configs.',
+          style: TextStyle(fontSize: 16),
         ),
+        const SizedBox(height: 8),
         TextField(
           controller: tickerController,
           decoration: const InputDecoration(
             labelText: 'Ticker',
           ),
         ),
+        const SizedBox(height: 8),
         TextField(
           controller: timeoutController,
           keyboardType: TextInputType.number,
@@ -571,12 +643,14 @@ class _ReaderConfigSearchState extends State<ReaderConfigSearch> {
             labelText: 'Timeout (seconds)',
           ),
         ),
+        const SizedBox(height: 8),
         TextField(
           controller: headerKeyController,
           decoration: const InputDecoration(
             labelText: 'Custom header key',
           ),
         ),
+        const SizedBox(height: 8),
         TextField(
           controller: headerValueController,
           decoration: const InputDecoration(
@@ -593,16 +667,18 @@ class _ReaderConfigSearchState extends State<ReaderConfigSearch> {
           value: adjust,
           onChanged: (value) => setState(() => adjust = value ?? false),
         ),
-        Row(
+        Wrap(
+          spacing: 10,
+          runSpacing: 4,
+          crossAxisAlignment: WrapCrossAlignment.center,
           children: [
-            Expanded(
-              child: Text(
-                startDate != null
-                    ? 'Start date: ${DateFormat('yyyy-MM-dd').format(startDate!)}'
-                    : 'Start date: all available history',
-              ),
+            Text(
+              startDate != null
+                  ? 'Start date: ${DateFormat('yyyy-MM-dd').format(startDate!)}'
+                  : 'Start date: all available history',
+              style: const TextStyle(fontWeight: FontWeight.w500),
             ),
-            MaterialButton(
+            FilledButton.tonal(
               onPressed: () async {
                 DateTime? picked = await showDatePicker(
                   context: context,
@@ -616,17 +692,18 @@ class _ReaderConfigSearchState extends State<ReaderConfigSearch> {
               },
               child: const Text('Pick start date'),
             ),
-            MaterialButton(
+            TextButton(
               onPressed: () => setState(() => startDate = null),
               child: const Text('Clear'),
             ),
           ],
         ),
-        MaterialButton(
-          color: Theme.of(context).primaryColor,
+        const SizedBox(height: 10),
+        FilledButton(
           onPressed: load,
           child: const Text('Load with config'),
         ),
+        const SizedBox(height: 10),
         Expanded(
           child: FutureBuilder(
             future: future,
